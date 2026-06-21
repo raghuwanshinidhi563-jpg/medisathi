@@ -3,7 +3,6 @@ from django.conf import settings
 from .models import MedicalReport
 from groq import Groq
 import pytesseract
-from PIL import Image
 import os
 import pyttsx3
 from io import BytesIO
@@ -95,8 +94,7 @@ def upload_report(request):
         
         try:
             image_path = os.path.join(settings.MEDIA_ROOT, str(report.report_image))
-            image = Image.open(image_path)
-            extracted_text = pytesseract.image_to_string(image)
+            extracted_text = pytesseract.image_to_string(image_path)
             
             if not extracted_text.strip():
                 return render(request, 'reports/upload.html', 
