@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: medisathi
+    env: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn medisathi.wsgi:application
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        sync: false
