@@ -1,7 +1,6 @@
 ﻿Django==4.2.0
 groq==0.4.1
-Pillow==10.0.0
+Pillow==10.0.1
 pytesseract==0.3.10
 python-dotenv==1.0.0
-pyttsx3==2.90
 gunicorn==21.2.0
