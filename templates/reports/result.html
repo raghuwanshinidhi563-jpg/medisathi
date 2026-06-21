@@ -27,34 +27,14 @@
   </div>
   {% endif %}
 
-  <!-- Audio Player -->
-  {% if audio_base64 %}
-  <div class="card" style="background:#E0F2FE;border-left:5px solid #0EA5E9;margin-bottom:20px">
-    <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap">
-      <div style="flex:1;min-width:250px">
-        <p style="font-size:12px;color:#0369A1;margin:0 0 8px 0;font-weight:600">
-          🔊 LISTEN TO EXPLANATION
-        </p>
-        <p style="font-size:13px;color:#0369A1;margin:0">
-          Click play to hear explanation in {{ language }}
-        </p>
-      </div>
-      <audio controls style="flex:1;min-width:250px;height:40px">
-        <source src="data:audio/mp3;base64,{{ audio_base64 }}" type="audio/mp3">
-        Your browser does not support audio.
-      </audio>
-    </div>
-  </div>
-  {% endif %}
-
   <!-- AI Explanation -->
   <div class="card" style="margin-bottom:20px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
       <h3 style="color:#0F6E56;font-size:18px;margin:0">
         🤖 AI Explanation ({{ language }})
       </h3>
-      <button onclick="copyToClipboard()" style="background:#1D9E75;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s">
-        📋 Copy Report
+      <button onclick="copyToClipboard('explanationText')" style="background:#1D9E75;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s">
+        📋 Copy Explanation
       </button>
     </div>
     <div id="explanationText" style="font-size:15px;line-height:1.8;color:#333;white-space:pre-wrap">{{ explanation }}</div>
@@ -62,13 +42,18 @@
 
   <!-- Home Remedies Section -->
   <div class="card" style="background:#FEF3C7;border-left:5px solid #F59E0B;margin-bottom:20px">
-    <h3 style="color:#92400E;font-size:18px;margin-top:0">
-      🌿 Home Remedies ({{ language }})
-    </h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <h3 style="color:#92400E;font-size:18px;margin:0">
+        🌿 Home Remedies ({{ language }})
+      </h3>
+      <button onclick="copyToClipboard('remediesText')" style="background:#F59E0B;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s">
+        📋 Copy Remedies
+      </button>
+    </div>
     <p style="color:#B45309;font-size:14px;margin-bottom:16px">
       Simple, affordable remedies you can try at home:
     </p>
-    <div id="remediesText" style="font-size:15px;line-height:1.8;color:#333;white-space:pre-wrap">{{ explanation }}</div>
+    <div id="remediesText" style="font-size:15px;line-height:1.8;color:#333;white-space:pre-wrap">{{ remedies }}</div>
     <p style="font-size:12px;color:#92400E;margin-top:16px;font-style:italic">
       💡 <strong>Tip:</strong> Use ingredients commonly available in your kitchen or local market
     </p>
@@ -100,10 +85,10 @@
 </div>
 
 <script>
-  function copyToClipboard() {
-    const explanationText = document.getElementById('explanationText').innerText;
+  function copyToClipboard(elementId) {
+    const text = document.getElementById(elementId).innerText;
     
-    navigator.clipboard.writeText(explanationText).then(() => {
+    navigator.clipboard.writeText(text).then(() => {
       const button = event.target;
       const originalText = button.innerHTML;
       button.innerHTML = '✅ Copied!';
@@ -111,7 +96,7 @@
       
       setTimeout(() => {
         button.innerHTML = originalText;
-        button.style.background = '#1D9E75';
+        button.style.background = elementId === 'explanationText' ? '#1D9E75' : '#F59E0B';
       }, 2000);
     }).catch(() => {
       alert('Failed to copy. Please try again.');

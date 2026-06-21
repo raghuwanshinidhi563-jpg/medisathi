@@ -4,9 +4,6 @@ from .models import MedicalReport
 from groq import Groq
 import pytesseract
 import os
-import pyttsx3
-from io import BytesIO
-import base64
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
@@ -30,35 +27,6 @@ def get_risk_category(explanation):
         return 'yellow'
     else:
         return 'green'
-
-def generate_audio_explanation(text, language='english'):
-    """Generate audio from text using text-to-speech"""
-    try:
-        engine = pyttsx3.init()
-        
-        # Set language-specific voice properties
-        if language == 'hindi':
-            engine.setProperty('rate', 150)  # Slower for clarity
-        else:
-            engine.setProperty('rate', 150)
-        
-        # Save audio to BytesIO instead of file
-        audio_file = BytesIO()
-        engine.save_to_file(text, 'temp_audio.mp3')
-        engine.runAndWait()
-        
-        # Read the generated file and convert to base64
-        try:
-            with open('temp_audio.mp3', 'rb') as f:
-                audio_data = f.read()
-                audio_base64 = base64.b64encode(audio_data).decode()
-            os.remove('temp_audio.mp3')
-            return audio_base64
-        except:
-            return None
-    except Exception as e:
-        print(f"Audio generation error: {e}")
-        return None
 
 def split_explanation_and_remedies(full_text):
     """Split the response into explanation and remedies"""
@@ -161,16 +129,12 @@ CRITICAL: Entire response MUST be in {language_name} ONLY."""
             report.risk_category = get_risk_category(explanation)
             report.save()
             
-            # Generate audio explanation
-            audio_base64 = generate_audio_explanation(explanation, language)
-            
             return render(request, 'reports/result.html', {
                 'report': report,
                 'explanation': explanation,
                 'remedies': remedies,
                 'risk': report.risk_category,
                 'language': language_name,
-                'audio_base64': audio_base64,
             })
             
         except Exception as e:
