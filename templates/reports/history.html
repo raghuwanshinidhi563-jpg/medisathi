@@ -1,0 +1,71 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    Report History
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    Your last 10 uploaded medical reports
+  </p>
+
+  {% if reports %}
+    {% for report in reports %}
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        
+        <div>
+          <h3 style="font-size:16px;color:#0F6E56;margin-bottom:4px">
+            📄 Report #{{ report.id }}
+          </h3>
+          <p style="font-size:13px;color:#888">
+            Uploaded: {{ report.uploaded_at|date:"d M Y, h:i A" }}
+          </p>
+          <p style="font-size:13px;color:#888">
+            Language: {{ report.get_selected_language_display }}
+          </p>
+        </div>
+
+        <div style="text-align:right">
+          {% if report.risk_category == 'green' %}
+          <span style="background:#D1FAE5;color:#065F46;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600">
+            ✅ Green
+          </span>
+          {% elif report.risk_category == 'yellow' %}
+          <span style="background:#FEF3C7;color:#92400E;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600">
+            ⚠️ Yellow
+          </span>
+          {% elif report.risk_category == 'red' %}
+          <span style="background:#FEE2E2;color:#991B1B;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600">
+            🚨 Red
+          </span>
+          {% endif %}
+        </div>
+
+      </div>
+
+      {% if report.ai_explanation %}
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid #eee">
+        <p style="font-size:13px;color:#555;line-height:1.6">
+          {{ report.ai_explanation|truncatewords:40 }}...
+        </p>
+      </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+
+  {% else %}
+  <div class="card" style="text-align:center;padding:48px">
+    <div style="font-size:48px;margin-bottom:16px">📋</div>
+    <h3 style="color:#555;margin-bottom:8px">No Reports Yet</h3>
+    <p style="color:#888;margin-bottom:20px">Upload your first medical report to see history here</p>
+    <a href="/upload/" class="btn">⬆ Upload Report</a>
+  </div>
+  {% endif %}
+
+  <div style="margin-top:20px">
+    <a href="/" class="btn-outline">🏠 Back to Home</a>
+  </div>
+</div>
+{% endblock %}

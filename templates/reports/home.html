@@ -1,0 +1,44 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <div style="text-align:center;padding:60px 0 40px">
+    <h1 style="font-size:36px;font-weight:700;color:#0F6E56;margin-bottom:16px">
+      🏥 MediSathi
+    </h1>
+    <p style="font-size:18px;color:#555;max-width:600px;margin:0 auto 32px;line-height:1.7">
+      AI-powered medical report interpreter designed for rural communities. 
+      Upload your report and get simple explanations in your language.
+    </p>
+    <a href="/upload/" class="btn" style="font-size:16px;padding:16px 40px">
+      ⬆ Upload Your Medical Report
+    </a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">📄</div>
+      <h3 style="color:#0F6E56;margin-bottom:8px">Upload Report</h3>
+      <p style="font-size:14px;color:#777">Upload your blood test or diagnostic report image</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">🤖</div>
+      <h3 style="color:#0F6E56;margin-bottom:8px">AI Interprets</h3>
+      <p style="font-size:14px;color:#777">Our AI reads and explains every medical value simply</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">🌐</div>
+      <h3 style="color:#0F6E56;margin-bottom:8px">Your Language</h3>
+      <p style="font-size:14px;color:#777">Get explanation in Hindi, Marathi, Bengali and more</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;background:#0F6E56;color:#fff;text-align:center">
+    <p style="font-size:14px;line-height:1.7;color:#9FE1CB">
+      ⚠️ <strong style="color:#fff">Disclaimer:</strong> MediSathi is for educational purposes only. 
+      It does not diagnose diseases and does not replace professional medical advice. 
+      Always consult a qualified healthcare professional.
+    </p>
+  </div>
+</div>
+{% endblock %}

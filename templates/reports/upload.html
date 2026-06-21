@@ -1,0 +1,62 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    Upload Medical Report
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    Upload your blood test or diagnostic report image and get AI explanation
+  </p>
+
+  {% if error %}
+  <div class="error">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
+          Select Medical Report Image
+        </label>
+        <input type="file" name="report" accept="image/*" required
+          style="width:100%;padding:12px;border:2px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
+        <p style="font-size:12px;color:#888;margin-top:6px">
+          Supported formats: JPG, PNG, JPEG
+        </p>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
+          Select Language
+        </label>
+        <select name="language"
+          style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff">
+          <option value="english">🇮🇳 English</option>
+          <option value="hindi">🇮🇳 Hindi</option>
+          <option value="marathi">🇮🇳 Marathi</option>
+          <option value="bengali">🇮🇳 Bengali</option>
+          <option value="tamil">🇮🇳 Tamil</option>
+          <option value="telugu">🇮🇳 Telugu</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px">
+        🤖 Interpret My Report
+      </button>
+    </form>
+  </div>
+
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
+    <p style="font-size:13px;color:#92400E;line-height:1.7">
+      ℹ️ <strong>Tips for best results:</strong><br>
+      • Make sure the image is clear and not blurry<br>
+      • All text in the report should be visible<br>
+      • Good lighting helps OCR read better<br>
+      • Supported: Blood tests, diagnostic reports
+    </p>
+  </div>
+</div>
+{% endblock %}

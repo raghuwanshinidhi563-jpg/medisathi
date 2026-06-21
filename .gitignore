@@ -1,0 +1,10 @@
+﻿.env
+*.pyc
+__pycache__/
+venv/
+db.sqlite3
+.DS_Store
+*.log
+temp_audio.mp3
+staticfiles/
+media/

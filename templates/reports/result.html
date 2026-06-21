@@ -1,0 +1,122 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    Your Report Analysis
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    AI has analyzed your medical report. Here are the results:
+  </p>
+
+  <!-- Risk Category -->
+  {% if risk == 'green' %}
+  <div class="card" style="border-left:5px solid #10B981;background:#F0FDF4;margin-bottom:20px">
+    <h3 style="color:#065F46;font-size:18px">✅ GREEN — Routine Monitoring</h3>
+    <p style="color:#047857;margin-top:8px;font-size:14px">Your values are within normal range. Continue healthy habits and regular check-ups.</p>
+  </div>
+  {% elif risk == 'yellow' %}
+  <div class="card" style="border-left:5px solid #F59E0B;background:#FFFBEB;margin-bottom:20px">
+    <h3 style="color:#92400E;font-size:18px">⚠️ YELLOW — Consult Doctor Soon</h3>
+    <p style="color:#B45309;margin-top:8px;font-size:14px">Some values need attention. Please schedule a doctor visit soon.</p>
+  </div>
+  {% else %}
+  <div class="card" style="border-left:5px solid #EF4444;background:#FEF2F2;margin-bottom:20px">
+    <h3 style="color:#991B1B;font-size:18px">🚨 RED — Seek Medical Attention</h3>
+    <p style="color:#B91C1C;margin-top:8px;font-size:14px">Critical values detected. Please seek medical attention immediately.</p>
+  </div>
+  {% endif %}
+
+  <!-- Audio Player -->
+  {% if audio_base64 %}
+  <div class="card" style="background:#E0F2FE;border-left:5px solid #0EA5E9;margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap">
+      <div style="flex:1;min-width:250px">
+        <p style="font-size:12px;color:#0369A1;margin:0 0 8px 0;font-weight:600">
+          🔊 LISTEN TO EXPLANATION
+        </p>
+        <p style="font-size:13px;color:#0369A1;margin:0">
+          Click play to hear explanation in {{ language }}
+        </p>
+      </div>
+      <audio controls style="flex:1;min-width:250px;height:40px">
+        <source src="data:audio/mp3;base64,{{ audio_base64 }}" type="audio/mp3">
+        Your browser does not support audio.
+      </audio>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- AI Explanation -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <h3 style="color:#0F6E56;font-size:18px;margin:0">
+        🤖 AI Explanation ({{ language }})
+      </h3>
+      <button onclick="copyToClipboard()" style="background:#1D9E75;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s">
+        📋 Copy Report
+      </button>
+    </div>
+    <div id="explanationText" style="font-size:15px;line-height:1.8;color:#333;white-space:pre-wrap">{{ explanation }}</div>
+  </div>
+
+  <!-- Home Remedies Section -->
+  <div class="card" style="background:#FEF3C7;border-left:5px solid #F59E0B;margin-bottom:20px">
+    <h3 style="color:#92400E;font-size:18px;margin-top:0">
+      🌿 Home Remedies ({{ language }})
+    </h3>
+    <p style="color:#B45309;font-size:14px;margin-bottom:16px">
+      Simple, affordable remedies you can try at home:
+    </p>
+    <div id="remediesText" style="font-size:15px;line-height:1.8;color:#333;white-space:pre-wrap">{{ explanation }}</div>
+    <p style="font-size:12px;color:#92400E;margin-top:16px;font-style:italic">
+      💡 <strong>Tip:</strong> Use ingredients commonly available in your kitchen or local market
+    </p>
+  </div>
+
+  <!-- Extracted Text -->
+  <div class="card" style="margin-bottom:20px;background:#f8f8f8">
+    <h3 style="color:#555;font-size:16px;margin-bottom:12px">
+      📄 Extracted Report Text
+    </h3>
+    <div style="font-size:13px;line-height:1.7;color:#666;white-space:pre-wrap;font-family:monospace">{{ report.extracted_text }}</div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA;margin-bottom:20px">
+    <p style="font-size:13px;color:#92400E;line-height:1.7">
+      ⚠️ <strong>Disclaimer:</strong> MediSathi is for educational purposes only. 
+      Home remedies are suggestions only. They do NOT replace professional medical advice. 
+      Please consult a qualified healthcare professional for proper diagnosis and treatment.
+    </p>
+  </div>
+
+  <!-- Buttons -->
+  <div style="display:flex;gap:14px;flex-wrap:wrap">
+    <a href="{% url 'upload' %}" class="btn">📤 Upload Another Report</a>
+    <a href="{% url 'history' %}" class="btn" style="background:#1D9E75">📊 View History</a>
+    <a href="{% url 'home' %}" class="btn" style="background:#666">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  function copyToClipboard() {
+    const explanationText = document.getElementById('explanationText').innerText;
+    
+    navigator.clipboard.writeText(explanationText).then(() => {
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '✅ Copied!';
+      button.style.background = '#10B981';
+      
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.style.background = '#1D9E75';
+      }, 2000);
+    }).catch(() => {
+      alert('Failed to copy. Please try again.');
+    });
+  }
+</script>
+
+{% endblock %}
