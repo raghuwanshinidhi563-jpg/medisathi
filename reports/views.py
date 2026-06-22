@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.conf import settings
 from .models import MedicalReport
 from groq import Groq
-import pytesseract
+import requests
 import os
+import base64
+from io import BytesIO
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
-
 
 # Language mappings
 LANGUAGE_NAMES = {
@@ -27,18 +28,34 @@ def get_risk_category(explanation):
     else:
         return 'green'
 
+def extract_text_from_image_ocr(image_path):
+    """Extract text from image using Free OCR API"""
+    try:
+        with open(image_path, 'rb') as f:
+            response = requests.post(
+                'https://api.ocr.space/parse/image',
+                files={'filename': f},
+                data={'apikey': 'K87899142372222', 'language': 'eng'}
+            )
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('IsErroredOnProcessing') == False:
+                return result.get('ParsedText', '')
+    except Exception as e:
+        print(f"OCR API Error: {e}")
+    
+    return ""
+
 def split_explanation_and_remedies(full_text):
     """Split the response into explanation and remedies"""
-    # Look for the remedies section marker
     if "HOME REMEDIES:" in full_text or "होम रेमेडीज:" in full_text or "HOME REMEDY:" in full_text:
-        # Split by the marker
         parts = full_text.split("HOME REMEDIES:", 1) or full_text.split("होम रेमेडीज:", 1) or full_text.split("HOME REMEDY:", 1)
         if len(parts) == 2:
             explanation = parts[0].strip()
             remedies = parts[1].strip()
             return explanation, remedies
     
-    # If no marker found, return the full text as explanation and empty remedies
     return full_text, "Remedies will be suggested by the AI based on your report."
 
 def home(request):
@@ -61,18 +78,20 @@ def upload_report(request):
         
         try:
             image_path = os.path.join(settings.MEDIA_ROOT, str(report.report_image))
-            # Get extracted text from browser (Tesseract.js)
-            extracted_text = request.POST.get('extracted_text', '').strip()
+            
+            # Extract text using Free OCR API
+            extracted_text = extract_text_from_image_ocr(image_path)
             
             if not extracted_text.strip():
                 return render(request, 'reports/upload.html', 
-                    {'error': 'Could not extract text from image. Please upload a clearer image.'})
+                    {'error': 'Could not extract text from image. Please upload a clearer image with visible text.'})
             
             report.extracted_text = extracted_text
             
-            # IMPROVED: Stronger language instruction for Groq
+            # Language name for Groq
             language_name = LANGUAGE_NAMES.get(language, 'English')
             
+            # Prompt for Groq
             prompt = f"""You are MediSathi, an AI medical report interpreter for rural Indian communities.
 
 IMPORTANT: Respond ONLY in {language_name} language. Every word must be in {language_name}. No English mixed.
@@ -103,7 +122,7 @@ Response format:
 
 CRITICAL: Entire response MUST be in {language_name} ONLY."""
 
-            # Call Groq with improved model
+            # Call Groq
             response = client.chat.completions.create(
                 model=getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile'),
                 messages=[
@@ -125,7 +144,7 @@ CRITICAL: Entire response MUST be in {language_name} ONLY."""
             # Split explanation and remedies
             explanation, remedies = split_explanation_and_remedies(full_response)
             
-            report.ai_explanation = full_response  # Store the full response
+            report.ai_explanation = full_response
             report.risk_category = get_risk_category(explanation)
             report.save()
             
