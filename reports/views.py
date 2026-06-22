@@ -7,7 +7,6 @@ import os
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Language mappings
 LANGUAGE_NAMES = {

@@ -2,7 +2,7 @@
 set -o errexit
 
 apt-get update
-apt-get install -y libjpeg-dev zlib1g-dev
+apt-get install -y tesseract-ocr libtesseract-dev
 
 pip install --upgrade pip
 pip install -r requirements.txt
