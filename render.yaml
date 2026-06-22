@@ -2,7 +2,7 @@ services:
   - type: web
     name: medisathi
     env: python
-    buildCommand: ./build.sh
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input
     startCommand: gunicorn medisathi.wsgi:application
     envVars:
       - key: GROQ_API_KEY
