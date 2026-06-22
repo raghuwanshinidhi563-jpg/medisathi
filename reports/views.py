@@ -4,8 +4,6 @@ from .models import MedicalReport
 from groq import Groq
 import requests
 import os
-import base64
-from io import BytesIO
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
@@ -41,7 +39,8 @@ def extract_text_from_image_ocr(image_path):
         if response.status_code == 200:
             result = response.json()
             if result.get('IsErroredOnProcessing') == False:
-                return result.get('ParsedText', '')
+                text = result.get('ParsedText', '').strip()
+                return text if text else ""
     except Exception as e:
         print(f"OCR API Error: {e}")
     
@@ -50,7 +49,12 @@ def extract_text_from_image_ocr(image_path):
 def split_explanation_and_remedies(full_text):
     """Split the response into explanation and remedies"""
     if "HOME REMEDIES:" in full_text or "होम रेमेडीज:" in full_text or "HOME REMEDY:" in full_text:
-        parts = full_text.split("HOME REMEDIES:", 1) or full_text.split("होम रेमेडीज:", 1) or full_text.split("HOME REMEDY:", 1)
+        parts = full_text.split("HOME REMEDIES:", 1)
+        if len(parts) == 1:
+            parts = full_text.split("होम रेमेडीज:", 1)
+        if len(parts) == 1:
+            parts = full_text.split("HOME REMEDY:", 1)
+        
         if len(parts) == 2:
             explanation = parts[0].strip()
             remedies = parts[1].strip()
@@ -82,30 +86,28 @@ def upload_report(request):
             # Extract text using Free OCR API
             extracted_text = extract_text_from_image_ocr(image_path)
             
-            if not extracted_text.strip():
+            if not extracted_text or not extracted_text.strip():
                 return render(request, 'reports/upload.html', 
                     {'error': 'Could not extract text from image. Please upload a clearer image with visible text.'})
             
             report.extracted_text = extracted_text
-            
-            # Language name for Groq
             language_name = LANGUAGE_NAMES.get(language, 'English')
             
-            # Prompt for Groq
+            # Create prompt for Groq
             prompt = f"""You are MediSathi, an AI medical report interpreter for rural Indian communities.
 
 IMPORTANT: Respond ONLY in {language_name} language. Every word must be in {language_name}. No English mixed.
 
 Medical report text: {extracted_text}
 
-Please provide response in EXACTLY this format:
+Please provide response in this format:
 
-[EXPLANATION SECTION]
-1. Explain each medical parameter in simple, easy language that a farmer or rural person can understand
+EXPLANATION:
+1. Explain each medical parameter in simple, easy language that a farmer can understand
 2. Mention what each value means for health
 3. Suggest affordable Indian foods to eat if any deficiencies are found
 4. State the risk level: GREEN (Safe) / YELLOW (See doctor soon) / RED (Urgent)
-5. End with: "कृपया योग्य डॉक्टर से परामर्श लें" or equivalent in {language_name}
+5. End with advice to consult a doctor
 
 HOME REMEDIES:
 Suggest 3-5 practical, affordable home remedies:
@@ -122,9 +124,9 @@ Response format:
 
 CRITICAL: Entire response MUST be in {language_name} ONLY."""
 
-            # Call Groq
+            # Call Groq API
             response = client.chat.completions.create(
-                model=getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile'),
+                model='llama-3.3-70b-versatile',
                 messages=[
                     {
                         "role": "system",
@@ -157,8 +159,9 @@ CRITICAL: Entire response MUST be in {language_name} ONLY."""
             })
             
         except Exception as e:
-            print(f"Error processing report: {str(e)}")
-            return render(request, 'reports/upload.html', {'error': f'Error: {str(e)}'})
+            error_msg = f'Error processing report: {str(e)}'
+            print(error_msg)
+            return render(request, 'reports/upload.html', {'error': error_msg})
     
     return render(request, 'reports/upload.html')
 
