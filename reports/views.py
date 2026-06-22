@@ -61,7 +61,8 @@ def upload_report(request):
         
         try:
             image_path = os.path.join(settings.MEDIA_ROOT, str(report.report_image))
-            extracted_text = pytesseract.image_to_string(image_path)
+            # Get extracted text from browser (Tesseract.js)
+            extracted_text = request.POST.get('extracted_text', '').strip()
             
             if not extracted_text.strip():
                 return render(request, 'reports/upload.html', 

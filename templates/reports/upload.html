@@ -21,10 +21,22 @@
         <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
           Select Medical Report Image
         </label>
-        <input type="file" name="report" accept="image/*" required
+        <input type="file" id="reportInput" name="report" accept="image/*" required
           style="width:100%;padding:12px;border:2px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
         <p style="font-size:12px;color:#888;margin-top:6px">
           Supported formats: JPG, PNG, JPEG
+        </p>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
+          📄 Extracted Text (Auto-filled from image)
+        </label>
+        <textarea id="extractedText" name="extracted_text" required
+          style="width:100%;height:150px;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:monospace;background:#f9f9f9"
+          placeholder="Text will be extracted from your image here..."></textarea>
+        <p style="font-size:12px;color:#888;margin-top:6px">
+          ⏳ Processing... or manually edit the extracted text if needed
         </p>
       </div>
 
@@ -55,8 +67,74 @@
       • Make sure the image is clear and not blurry<br>
       • All text in the report should be visible<br>
       • Good lighting helps OCR read better<br>
-      • Supported: Blood tests, diagnostic reports
+      • Supported: Blood tests, diagnostic reports<br>
+      • The text will be auto-extracted from your image
     </p>
   </div>
 </div>
+
+<!-- Tesseract.js Script for Browser-based OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@v2/dist/tesseract.min.js"></script>
+
+<script>
+  const { createWorker } = Tesseract;
+  let worker = null;
+
+  // Initialize Tesseract worker
+  async function initWorker() {
+    if (!worker) {
+      worker = await createWorker();
+    }
+    return worker;
+  }
+
+  // Extract text from image using Tesseract.js
+  async function extractTextFromImage(file) {
+    try {
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const img = e.target.result;
+        const textArea = document.getElementById('extractedText');
+        
+        // Show processing message
+        textArea.value = '⏳ Processing image... Please wait...';
+        textArea.style.color = '#888';
+        
+        try {
+          const w = await initWorker();
+          const result = await w.recognize(img);
+          const extractedText = result.data.text;
+          
+          // Display extracted text
+          textArea.value = extractedText || '(No text detected - please check image quality or enter manually)';
+          textArea.style.color = '#333';
+        } catch (err) {
+          textArea.value = 'Error processing image: ' + err.message + '\n\nPlease enter text manually or try a clearer image.';
+          textArea.style.color = '#d32f2f';
+          console.error('OCR Error:', err);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error reading file:', err);
+      document.getElementById('extractedText').value = 'Error reading file. Please try again.';
+    }
+  }
+
+  // Handle file input change
+  document.getElementById('reportInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file!');
+        return;
+      }
+      
+      // Extract text from image
+      extractTextFromImage(file);
+    }
+  });
+</script>
+
 {% endblock %}
