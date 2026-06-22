@@ -6,37 +6,33 @@
     Upload Medical Report
   </h2>
   <p style="color:#777;margin-bottom:28px">
-    Upload your blood test or diagnostic report image and get AI explanation
+    Enter your medical report details and get AI explanation
   </p>
 
   {% if error %}
-  <div class="error">⚠️ {{ error }}</div>
+  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px;border-left:4px solid #c33">
+    ⚠️ {{ error }}
+  </div>
   {% endif %}
 
   <div class="card">
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST">
       {% csrf_token %}
 
       <div style="margin-bottom:20px">
         <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
-          Select Medical Report Image
+          📋 Medical Report Text
         </label>
-        <input type="file" id="reportInput" name="report" accept="image/*" required
-          style="width:100%;padding:12px;border:2px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
-        <p style="font-size:12px;color:#888;margin-top:6px">
-          Supported formats: JPG, PNG, JPEG
-        </p>
-      </div>
-
-      <div style="margin-bottom:20px">
-        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
-          📄 Extracted Text (Auto-filled from image)
-        </label>
-        <textarea id="extractedText" name="extracted_text" required
+        <textarea name="extracted_text" required
           style="width:100%;height:150px;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:monospace;background:#f9f9f9"
-          placeholder="Text will be extracted from your image here..."></textarea>
+          placeholder="Paste or type your medical report text here...
+
+Example:
+Hemoglobin: 12.5 g/dL
+Blood Sugar: 110 mg/dL
+Cholesterol: 200 mg/dL"></textarea>
         <p style="font-size:12px;color:#888;margin-top:6px">
-          ⏳ Processing... or manually edit the extracted text if needed
+          💡 Copy and paste the text from your medical report or type the values
         </p>
       </div>
 
@@ -44,8 +40,9 @@
         <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
           Select Language
         </label>
-        <select name="language"
+        <select name="language" required
           style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff">
+          <option value="">-- Select Language --</option>
           <option value="english">🇮🇳 English</option>
           <option value="hindi">🇮🇳 Hindi</option>
           <option value="marathi">🇮🇳 Marathi</option>
@@ -55,86 +52,21 @@
         </select>
       </div>
 
-      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px">
+      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;cursor:pointer;background:#0F6E56;color:white;border:none;border-radius:8px;font-weight:600">
         🤖 Interpret My Report
       </button>
     </form>
   </div>
 
-  <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
-    <p style="font-size:13px;color:#92400E;line-height:1.7">
-      ℹ️ <strong>Tips for best results:</strong><br>
-      • Make sure the image is clear and not blurry<br>
-      • All text in the report should be visible<br>
-      • Good lighting helps OCR read better<br>
-      • Supported: Blood tests, diagnostic reports<br>
-      • The text will be auto-extracted from your image
+  <div class="card" style="background:#FFF7ED;border-left:4px solid #FED7AA">
+    <p style="font-size:13px;color:#92400E;line-height:1.7;margin:0">
+      ℹ️ <strong>How to use:</strong><br>
+      • Copy the text from your medical report image or document<br>
+      • Paste or type it in the text area above<br>
+      • Select your preferred language<br>
+      • Click "Interpret My Report"<br>
+      • Get AI explanation with home remedies!
     </p>
   </div>
 </div>
-
-<!-- Tesseract.js Script for Browser-based OCR -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@v2/dist/tesseract.min.js"></script>
-
-<script>
-  const { createWorker } = Tesseract;
-  let worker = null;
-
-  // Initialize Tesseract worker
-  async function initWorker() {
-    if (!worker) {
-      worker = await createWorker();
-    }
-    return worker;
-  }
-
-  // Extract text from image using Tesseract.js
-  async function extractTextFromImage(file) {
-    try {
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const img = e.target.result;
-        const textArea = document.getElementById('extractedText');
-        
-        // Show processing message
-        textArea.value = '⏳ Processing image... Please wait...';
-        textArea.style.color = '#888';
-        
-        try {
-          const w = await initWorker();
-          const result = await w.recognize(img);
-          const extractedText = result.data.text;
-          
-          // Display extracted text
-          textArea.value = extractedText || '(No text detected - please check image quality or enter manually)';
-          textArea.style.color = '#333';
-        } catch (err) {
-          textArea.value = 'Error processing image: ' + err.message + '\n\nPlease enter text manually or try a clearer image.';
-          textArea.style.color = '#d32f2f';
-          console.error('OCR Error:', err);
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      console.error('Error reading file:', err);
-      document.getElementById('extractedText').value = 'Error reading file. Please try again.';
-    }
-  }
-
-  // Handle file input change
-  document.getElementById('reportInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file!');
-        return;
-      }
-      
-      // Extract text from image
-      extractTextFromImage(file);
-    }
-  });
-</script>
-
 {% endblock %}
