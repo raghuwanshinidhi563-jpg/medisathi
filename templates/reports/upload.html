@@ -6,33 +6,41 @@
     Upload Medical Report
   </h2>
   <p style="color:#777;margin-bottom:28px">
-    Enter your medical report details and get AI explanation
+    Upload your medical report image and get AI explanation
   </p>
 
   {% if error %}
-  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px;border-left:4px solid #c33">
+  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px">
     ⚠️ {{ error }}
   </div>
   {% endif %}
 
   <div class="card">
-    <form method="POST">
+    <form method="POST" onsubmit="return validateForm()">
       {% csrf_token %}
 
       <div style="margin-bottom:20px">
         <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
-          📋 Medical Report Text
+          📸 Upload Medical Report Image
         </label>
-        <textarea name="extracted_text" required
-          style="width:100%;height:150px;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:monospace;background:#f9f9f9"
-          placeholder="Paste or type your medical report text here...
+        <input type="file" id="imageInput" accept="image/*" 
+          style="width:100%;padding:12px;border:2px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
+        <p style="font-size:12px;color:#888;margin-top:6px">JPG, PNG, JPEG - Upload a clear image</p>
+      </div>
 
-Example:
-Hemoglobin: 12.5 g/dL
-Blood Sugar: 110 mg/dL
-Cholesterol: 200 mg/dL"></textarea>
-        <p style="font-size:12px;color:#888;margin-top:6px">
-          💡 Copy and paste the text from your medical report or type the values
+      <div id="previewDiv" style="display:none;margin-bottom:20px">
+        <img id="previewImg" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid #ddd">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
+          📋 Report Text (Auto-extracted from image)
+        </label>
+        <textarea name="extracted_text" id="extractedText" 
+          style="width:100%;height:150px;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px"
+          placeholder="Text will appear here..."></textarea>
+        <p style="font-size:12px;color:#666;margin-top:6px" id="statusMsg">
+          👆 Upload image above to extract text
         </p>
       </div>
 
@@ -40,33 +48,107 @@ Cholesterol: 200 mg/dL"></textarea>
         <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:8px">
           Select Language
         </label>
-        <select name="language" required
-          style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff">
-          <option value="">-- Select Language --</option>
-          <option value="english">🇮🇳 English</option>
-          <option value="hindi">🇮🇳 Hindi</option>
-          <option value="marathi">🇮🇳 Marathi</option>
-          <option value="bengali">🇮🇳 Bengali</option>
-          <option value="tamil">🇮🇳 Tamil</option>
-          <option value="telugu">🇮🇳 Telugu</option>
+        <select name="language" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px">
+          <option value="english">English</option>
+          <option value="hindi">Hindi</option>
+          <option value="marathi">Marathi</option>
+          <option value="bengali">Bengali</option>
+          <option value="tamil">Tamil</option>
+          <option value="telugu">Telugu</option>
         </select>
       </div>
 
-      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;cursor:pointer;background:#0F6E56;color:white;border:none;border-radius:8px;font-weight:600">
-        🤖 Interpret My Report
+      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;cursor:pointer">
+        🤖 Get AI Explanation
       </button>
     </form>
   </div>
 
-  <div class="card" style="background:#FFF7ED;border-left:4px solid #FED7AA">
-    <p style="font-size:13px;color:#92400E;line-height:1.7;margin:0">
-      ℹ️ <strong>How to use:</strong><br>
-      • Copy the text from your medical report image or document<br>
-      • Paste or type it in the text area above<br>
-      • Select your preferred language<br>
-      • Click "Interpret My Report"<br>
-      • Get AI explanation with home remedies!
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
+    <p style="font-size:13px;color:#92400E;line-height:1.7">
+      ℹ️ <strong>Steps:</strong><br>
+      1️⃣ Upload a clear image of your medical report<br>
+      2️⃣ Wait for text extraction (10-30 seconds)<br>
+      3️⃣ Edit text if needed<br>
+      4️⃣ Select language & submit<br>
+      5️⃣ Get instant AI explanation & remedies!
     </p>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@v2.1.5/dist/tesseract.min.js"></script>
+
+<script>
+let worker = null;
+
+async function initWorker() {
+  try {
+    if (!worker) {
+      worker = await Tesseract.createWorker();
+    }
+    return worker;
+  } catch(e) {
+    console.error('Worker error:', e);
+    return null;
+  }
+}
+
+document.getElementById('imageInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const textArea = document.getElementById('extractedText');
+  const statusMsg = document.getElementById('statusMsg');
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('previewDiv').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  
+  textArea.value = '';
+  statusMsg.textContent = '⏳ Extracting text from image... Please wait...';
+  statusMsg.style.color = '#666';
+  
+  try {
+    const w = await initWorker();
+    if (!w) throw new Error('Could not initialize OCR');
+    
+    const result = await w.recognize(file);
+    const text = (result.data.text || '').trim();
+    
+    if (text && text.length > 3) {
+      textArea.value = text;
+      statusMsg.textContent = '✅ Text extracted! You can edit before submitting.';
+      statusMsg.style.color = '#065F46';
+    } else {
+      textArea.value = 'Hemoglobin: \nBlood Sugar: \nCholesterol: ';
+      statusMsg.textContent = '⚠️ Could not extract text. Please type values manually.';
+      statusMsg.style.color = '#c33';
+    }
+  } catch (err) {
+    textArea.value = 'Hemoglobin: \nBlood Sugar: \nCholesterol: ';
+    statusMsg.textContent = '❌ ' + (err.message || 'Error processing image') + '. Type values manually.';
+    statusMsg.style.color = '#c33';
+  }
+});
+
+function validateForm() {
+  const text = document.getElementById('extractedText').value.trim();
+  
+  if (!text) {
+    alert('Please enter or extract medical report text');
+    return false;
+  }
+  
+  if (text.length < 5) {
+    alert('Please enter valid report text (at least 5 characters)');
+    return false;
+  }
+  
+  return true;
+}
+</script>
+
 {% endblock %}

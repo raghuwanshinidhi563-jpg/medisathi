@@ -1,170 +1,84 @@
 from django.shortcuts import render
-from django.conf import settings
 from .models import MedicalReport
 from groq import Groq
-import requests
 import os
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
-# Language mappings
-LANGUAGE_NAMES = {
-    'english': 'English',
-    'hindi': 'Hindi',
-    'marathi': 'Marathi',
-    'bengali': 'Bengali',
-    'tamil': 'Tamil',
-    'telugu': 'Telugu'
-}
+LANGUAGE_NAMES = {'english': 'English', 'hindi': 'Hindi', 'marathi': 'Marathi', 'bengali': 'Bengali', 'tamil': 'Tamil', 'telugu': 'Telugu'}
 
-def get_risk_category(explanation):
-    explanation_lower = explanation.lower()
-    if any(word in explanation_lower for word in ['critical', 'urgent', 'immediately', 'dangerous', 'severe', 'जरूरी', 'गंभीर', 'तत्काल']):
-        return 'red'
-    elif any(word in explanation_lower for word in ['consult', 'doctor', 'monitor', 'slightly', 'low', 'high', 'मिलें', 'करें', 'सलाह']):
-        return 'yellow'
-    else:
-        return 'green'
-
-def extract_text_from_image_ocr(image_path):
-    """Extract text from image using Free OCR API"""
-    try:
-        with open(image_path, 'rb') as f:
-            response = requests.post(
-                'https://api.ocr.space/parse/image',
-                files={'filename': f},
-                data={'apikey': 'K87899142372222', 'language': 'eng'}
-            )
-        
-        if response.status_code == 200:
-            result = response.json()
-            if result.get('IsErroredOnProcessing') == False:
-                text = result.get('ParsedText', '').strip()
-                return text if text else ""
-    except Exception as e:
-        print(f"OCR API Error: {e}")
-    
-    return ""
-
-def split_explanation_and_remedies(full_text):
-    """Split the response into explanation and remedies"""
-    if "HOME REMEDIES:" in full_text or "होम रेमेडीज:" in full_text or "HOME REMEDY:" in full_text:
-        parts = full_text.split("HOME REMEDIES:", 1)
-        if len(parts) == 1:
-            parts = full_text.split("होम रेमेडीज:", 1)
-        if len(parts) == 1:
-            parts = full_text.split("HOME REMEDY:", 1)
-        
-        if len(parts) == 2:
-            explanation = parts[0].strip()
-            remedies = parts[1].strip()
-            return explanation, remedies
-    
-    return full_text, "Remedies will be suggested by the AI based on your report."
+def get_risk_category(text):
+    t = (text or '').lower()
+    if any(w in t for w in ['critical', 'urgent', 'severe']): return 'red'
+    if any(w in t for w in ['consult', 'doctor', 'monitor']): return 'yellow'
+    return 'green'
 
 def home(request):
     return render(request, 'reports/home.html')
 
 def upload_report(request):
     if request.method == 'POST':
-        report_file = request.FILES.get('report')
-        language = request.POST.get('language', 'english').lower()
-        
-        if not report_file:
-            return render(request, 'reports/upload.html', {'error': 'Please upload a medical report image.'})
-        
-        if language not in LANGUAGE_NAMES:
-            language = 'english'
-        
-        report = MedicalReport(selected_language=language)
-        report.report_image = report_file
-        report.save()
-        
         try:
-            image_path = os.path.join(settings.MEDIA_ROOT, str(report.report_image))
+            text = request.POST.get('extracted_text', '').strip()
+            lang = request.POST.get('language', 'english').lower()
             
-            # Extract text using Free OCR API
-            extracted_text = extract_text_from_image_ocr(image_path)
+            if not text:
+                return render(request, 'reports/upload.html', {'error': 'Please enter medical report text'})
             
-            if not extracted_text or not extracted_text.strip():
-                return render(request, 'reports/upload.html', 
-                    {'error': 'Could not extract text from image. Please upload a clearer image with visible text.'})
+            if len(text) < 5:
+                return render(request, 'reports/upload.html', {'error': 'Please enter valid report text'})
             
-            report.extracted_text = extracted_text
-            language_name = LANGUAGE_NAMES.get(language, 'English')
+            if lang not in LANGUAGE_NAMES:
+                lang = 'english'
             
-            # Create prompt for Groq
-            prompt = f"""You are MediSathi, an AI medical report interpreter for rural Indian communities.
-
-IMPORTANT: Respond ONLY in {language_name} language. Every word must be in {language_name}. No English mixed.
-
-Medical report text: {extracted_text}
-
-Please provide response in this format:
-
-EXPLANATION:
-1. Explain each medical parameter in simple, easy language that a farmer can understand
-2. Mention what each value means for health
-3. Suggest affordable Indian foods to eat if any deficiencies are found
-4. State the risk level: GREEN (Safe) / YELLOW (See doctor soon) / RED (Urgent)
-5. End with advice to consult a doctor
-
-HOME REMEDIES:
-Suggest 3-5 practical, affordable home remedies:
-- Include Ayurvedic remedies, traditional Indian remedies, and wellness tips
-- For each remedy: what it is, how to use it, benefits
-- Use common local ingredients available in villages
-- Make it simple for elderly people to understand
-
-Response format:
-- Keep sentences SHORT and SIMPLE
-- Use common local language, not medical jargon
-- Suggest LOCAL, AFFORDABLE foods and remedies
-- Be encouraging but HONEST
-
-CRITICAL: Entire response MUST be in {language_name} ONLY."""
-
-            # Call Groq API
-            response = client.chat.completions.create(
-                model='llama-3.3-70b-versatile',
-                messages=[
-                    {
-                        "role": "system",
-                        "content": f"You are MediSathi. Always respond in {language_name} language ONLY. Never use English."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                max_tokens=2000,
-                temperature=0.7
-            )
-            
-            full_response = response.choices[0].message.content
-            
-            # Split explanation and remedies
-            explanation, remedies = split_explanation_and_remedies(full_response)
-            
-            report.ai_explanation = full_response
-            report.risk_category = get_risk_category(explanation)
+            report = MedicalReport(selected_language=lang)
+            report.extracted_text = text
             report.save()
             
-            return render(request, 'reports/result.html', {
-                'report': report,
-                'explanation': explanation,
-                'remedies': remedies,
-                'risk': report.risk_category,
-                'language': language_name,
-            })
+            lang_name = LANGUAGE_NAMES[lang]
             
+            try:
+                response = client.chat.completions.create(
+                    model='llama-3.3-70b-versatile',
+                    messages=[
+                        {"role": "system", "content": f"You are MediSathi. Respond in {lang_name} only."},
+                        {"role": "user", "content": f"Medical report:\n{text}\n\nExplain each parameter simply. Then list HOME REMEDIES:"}
+                    ],
+                    max_tokens=1500,
+                    temperature=0.7
+                )
+                
+                result = response.choices[0].message.content
+                
+                if "HOME REMEDIES:" in result:
+                    explanation, remedies = result.split("HOME REMEDIES:", 1)
+                else:
+                    explanation = result
+                    remedies = "Please consult a doctor."
+                
+                report.ai_explanation = result
+                report.risk_category = get_risk_category(explanation)
+                report.save()
+                
+                return render(request, 'reports/result.html', {
+                    'report': report,
+                    'explanation': explanation.strip(),
+                    'remedies': remedies.strip(),
+                    'risk': report.risk_category,
+                    'language': lang_name,
+                })
+            
+            except Exception as api_error:
+                return render(request, 'reports/upload.html', {'error': f'API Error: {str(api_error)}'})
+        
         except Exception as e:
-            error_msg = f'Error processing report: {str(e)}'
-            print(error_msg)
-            return render(request, 'reports/upload.html', {'error': error_msg})
+            return render(request, 'reports/upload.html', {'error': f'Error: {str(e)}'})
     
     return render(request, 'reports/upload.html')
 
 def history(request):
-    reports = MedicalReport.objects.all().order_by('-created_at')[:10]
-    return render(request, 'reports/history.html', {'reports': reports})
+    try:
+        reports = MedicalReport.objects.all().order_by('-created_at')[:10]
+        return render(request, 'reports/history.html', {'reports': reports})
+    except:
+        return render(request, 'reports/history.html', {'reports': []})
