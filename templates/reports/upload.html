@@ -6,7 +6,7 @@
     Upload Medical Report
   </h2>
   <p style="color:#777;margin-bottom:28px">
-    Upload your medical report image → Auto analysis → Get results
+    Upload your medical report image → Get instant AI analysis
   </p>
 
   {% if error %}
@@ -19,7 +19,6 @@
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
-      <!-- ONLY: Image Upload -->
       <div style="margin-bottom:30px">
         <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:15px">
           📸 Upload Medical Report Image
@@ -27,14 +26,13 @@
         <input type="file" name="report" accept="image/*" required
           style="width:100%;padding:20px;border:3px dashed #1D9E75;border-radius:8px;font-size:16px;background:#f0faf6;cursor:pointer">
         <p style="font-size:13px;color:#888;margin-top:10px">
-          Upload clear photo (JPG, PNG, JPEG) - We'll analyze it automatically
+          Upload clear image - we analyze it automatically!
         </p>
       </div>
 
-      <!-- ONLY: Language Selection -->
       <div style="margin-bottom:30px">
         <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
-          🌍 Select Language for Analysis
+          🌍 Select Language
         </label>
         <select name="language" required
           style="width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;font-size:15px;background:white;cursor:pointer">
@@ -56,11 +54,10 @@
 
   <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
     <p style="font-size:14px;color:#92400E;line-height:2">
-      <strong>📋 How it works:</strong><br>
-      ✓ Upload a photo of your medical report<br>
-      ✓ Select your language<br>
-      ✓ Click "Analyze"<br>
-      ✓ Get detailed AI analysis automatically!
+      <strong>📋 Just 3 steps:</strong><br>
+      1️⃣ Upload your medical report image<br>
+      2️⃣ Select your language<br>
+      3️⃣ Click "Analyze" - Get results instantly!
     </p>
   </div>
 </div>
