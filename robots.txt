@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://medisathi-esp4.onrender.com/sitemap.xml
