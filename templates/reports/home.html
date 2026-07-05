@@ -2,43 +2,66 @@
 
 {% block content %}
 <div class="container">
-  <div style="text-align:center;padding:60px 0 40px">
-    <h1 style="font-size:36px;font-weight:700;color:#0F6E56;margin-bottom:16px">
-      🏥 MediSathi
+  <div style="text-align:center;margin-bottom:50px">
+    <h1 style="font-size:36px;color:#0F6E56;font-weight:700;margin-bottom:10px">
+      🩺 MediSathi
     </h1>
-    <p style="font-size:18px;color:#555;max-width:600px;margin:0 auto 32px;line-height:1.7">
-      AI-powered medical report interpreter designed for rural communities. 
-      Upload your report and get simple explanations in your language.
+    <p style="font-size:16px;color:#777;margin:0">
+      Your AI Health Assistant for Rural India
     </p>
-    <a href="/upload/" class="btn" style="font-size:16px;padding:16px 40px">
-      ⬆ Upload Your Medical Report
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px">
+    <!-- Voice Assistant Card -->
+    <a href="{% url 'voice_assistant' %}" style="text-decoration:none">
+      <div class="card" style="background:linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);color:white;cursor:pointer;transition:transform 0.3s;text-align:center;padding:40px 20px;min-height:200px;display:flex;flex-direction:column;justify-content:center;border:none">
+        <div style="font-size:48px;margin-bottom:15px">🎤</div>
+        <h2 style="margin:0;font-size:20px;font-weight:700">Voice Health Assistant</h2>
+        <p style="margin:10px 0 0 0;font-size:14px;opacity:0.9">Speak your symptoms<br>Get instant guidance</p>
+      </div>
     </a>
-  </div>
 
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px">
-    <div class="card" style="text-align:center">
-      <div style="font-size:36px;margin-bottom:12px">📄</div>
-      <h3 style="color:#0F6E56;margin-bottom:8px">Upload Report</h3>
-      <p style="font-size:14px;color:#777">Upload your blood test or diagnostic report image</p>
-    </div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:36px;margin-bottom:12px">🤖</div>
-      <h3 style="color:#0F6E56;margin-bottom:8px">AI Interprets</h3>
-      <p style="font-size:14px;color:#777">Our AI reads and explains every medical value simply</p>
-    </div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:36px;margin-bottom:12px">🌐</div>
-      <h3 style="color:#0F6E56;margin-bottom:8px">Your Language</h3>
-      <p style="font-size:14px;color:#777">Get explanation in Hindi, Marathi, Bengali and more</p>
+    <!-- Skin Disease Detector Card (Coming Soon) -->
+    <div class="card" style="background:#f0faf6;cursor:not-allowed;text-align:center;padding:40px 20px;min-height:200px;display:flex;flex-direction:column;justify-content:center;border:2px dashed #1D9E75;opacity:0.6">
+      <div style="font-size:48px;margin-bottom:15px">🩹</div>
+      <h2 style="margin:0;font-size:20px;font-weight:700;color:#0F6E56">Skin Disease Detector</h2>
+      <p style="margin:10px 0 0 0;font-size:14px;color:#777">Coming Soon!</p>
     </div>
   </div>
 
-  <div class="card" style="margin-top:20px;background:#0F6E56;color:#fff;text-align:center">
-    <p style="font-size:14px;line-height:1.7;color:#9FE1CB">
-      ⚠️ <strong style="color:#fff">Disclaimer:</strong> MediSathi is for educational purposes only. 
-      It does not diagnose diseases and does not replace professional medical advice. 
-      Always consult a qualified healthcare professional.
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
+    <h3 style="color:#0F6E56;margin-top:0">✨ Features</h3>
+    <ul style="color:#666;line-height:2;margin:0;padding-left:20px">
+      <li>🎤 Voice input in Indian languages</li>
+      <li>🤖 AI-powered health guidance</li>
+      <li>📚 Detailed explanations & facts</li>
+      <li>🌿 Home remedies & diet tips</li>
+      <li>⚠️ Risk assessment & urgency</li>
+      <li>🏥 Doctor consultation guidance</li>
+    </ul>
+  </div>
+
+  <div class="card" style="background:#fff3e0;border-color:#ff9800">
+    <p style="margin:0;color:#e65100;font-size:12px">
+      ⚠️ <strong>DISCLAIMER:</strong> This is for educational purposes only. Not a substitute for professional medical advice. Always consult a qualified doctor.
     </p>
   </div>
 </div>
+
+<style>
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+a .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+
 {% endblock %}

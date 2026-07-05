@@ -1,10 +1,7 @@
 from django.shortcuts import render
-from django.conf import settings
 from .models import MedicalReport
 from groq import Groq
-import requests
 import os
-from io import BytesIO
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
@@ -17,189 +14,157 @@ LANGUAGE_NAMES = {
     'telugu': 'Telugu'
 }
 
-def extract_text_easyapi(image_file):
-    """Extract text using OCR.Space API - COMPLETELY FREE"""
-    try:
-        # Read image data
-        image_data = image_file.read()
-        image_file.seek(0)  # Reset file pointer
-        
-        # Send to OCR.Space API
-        url = 'https://api.ocr.space/parse/image'
-        payload = {
-            'apikey': 'K87899142372222',
-            'language': 'eng',
-        }
-        
-        files = {'filename': image_data}
-        
-        response = requests.post(url, data=payload, files=files, timeout=30)
-        result = response.json()
-        
-        if result.get('IsErroredOnProcessing') == False:
-            text = result.get('ParsedText', '').strip()
-            if text and len(text) > 20:
-                return text
-        
-        return None
-    except Exception as e:
-        print(f"OCR Error: {e}")
-        return None
-
 def get_risk_category(text):
     t = (text or '').lower()
-    if any(w in t for w in ['critical', 'urgent', 'severe', 'red']): 
+    if any(w in t for w in ['critical', 'urgent', 'severe', 'emergency', 'immediate']): 
         return 'red'
-    if any(w in t for w in ['yellow', 'consult', 'doctor', 'soon']): 
+    if any(w in t for w in ['consult', 'doctor', 'soon', 'concerning']): 
         return 'yellow'
     return 'green'
 
 def home(request):
     return render(request, 'reports/home.html')
 
-def upload_report(request):
+def voice_assistant(request):
+    """Voice Health Assistant"""
     if request.method == 'POST':
         try:
-            report_file = request.FILES.get('report')
+            symptom_text = request.POST.get('symptoms', '').strip()
             lang = request.POST.get('language', 'english').lower()
             
-            if not report_file:
-                return render(request, 'reports/upload.html', {'error': 'Please upload a medical report image'})
+            if not symptom_text:
+                return render(request, 'reports/voice.html', {'error': 'Please speak or enter your symptoms'})
             
             if lang not in LANGUAGE_NAMES:
                 lang = 'english'
             
-            # Show processing message
-            print(f"Processing image: {report_file.name}")
-            
-            # Extract text using OCR.Space API
-            extracted_text = extract_text_easyapi(report_file)
-            
-            if not extracted_text:
-                return render(request, 'reports/upload.html', 
-                    {'error': 'Could not read the image. Please upload a CLEAR, well-lit photo of your medical report. Make sure text is readable.'})
-            
-            print(f"Extracted text: {extracted_text[:100]}")
-            
-            # Save report
-            report = MedicalReport(selected_language=lang)
-            report.report_image = report_file
-            report.extracted_text = extracted_text
-            report.save()
-            print(f"Report saved: {report.id}")
-            
             lang_name = LANGUAGE_NAMES[lang]
             
+            # Save symptom record
+            report = MedicalReport(selected_language=lang)
+            report.extracted_text = symptom_text
+            report.save()
+            
             try:
-                print("Calling Groq API...")
-                # Send to Groq for analysis
+                # Send to Groq for comprehensive health analysis
                 response = client.chat.completions.create(
                     model='llama-3.3-70b-versatile',
                     messages=[
                         {
                             "role": "system",
-                            "content": f"""You are MediSathi, a medical report analyzer for Indian patients. 
-Respond ONLY in {lang_name} language. NEVER use English.
+                            "content": f"""You are MediSathi, a health assistant for Indian people. Respond ONLY in {lang_name}.
+                            
+You listen to health concerns and provide:
+1. What the problem might be (possible conditions)
+2. Why it happens (causes and reasons)
+3. How serious it is (risk level)
+4. What to do immediately (first aid)
+5. When to see a doctor (urgency)
+6. Home remedies specific to India
+7. Diet recommendations (Indian food)
+8. Foods to avoid
+9. Lifestyle changes
+10. Facts and explanations from medical knowledge
+11. Relevant health tips
 
-For EACH medical parameter in the patient's report:
-- Show normal range
-- Show their value
-- Say if HIGH/LOW/NORMAL
-- Explain what it means (short + long)
-- Explain why it's like that
-- How to fix it (foods, actions)
-- What to avoid
-- Risk level (GREEN/YELLOW/RED)
-
-Be detailed, helpful, and practical."""
+Be empathetic, detailed, practical, and safe."""
                         },
                         {
                             "role": "user",
-                            "content": f"""Patient's Medical Report Values (extracted from image):
+                            "content": f"""Patient's Health Concern (in their own words):
+{symptom_text}
 
-{extracted_text}
+Please provide comprehensive health guidance in {lang_name}:
 
-Please analyze EACH parameter shown in this report. For every value, provide:
+📋 WHAT IS HAPPENING?
+[List possible conditions/problems they might have]
 
-[PARAMETER NAME]
-Normal: [range]
-Your Value: [value]  
-Status: [HIGH/LOW/NORMAL]
+❓ WHY DOES THIS HAPPEN?
+[Explain causes and reasons for these symptoms]
 
-📚 What is it?
-[Simple 1-2 line definition]
+⚠️ HOW SERIOUS IS IT?
+[Assess risk level: GREEN (minor) / YELLOW (moderate) / RED (urgent)]
+[Explain when to see doctor immediately]
 
-📖 How it affects you:
-[3-4 lines explaining effects on body]
+🚨 WHAT TO DO RIGHT NOW?
+[Immediate first aid or steps]
 
-❓ Why is yours [LOW/HIGH]?
-[2-3 lines on causes/reasons]
+⏰ WHEN TO VISIT DOCTOR?
+[Timeline and urgency]
 
-✅ How to Fix:
-- Food 1: [benefit]
-- Food 2: [benefit]  
-- Action 1: [benefit]
+🏥 WHAT SHOULD YOU TELL THE DOCTOR?
+[Important details to mention]
 
-❌ Avoid:
-- Food 1 [why]
-- Habit 1 [why]
+🌿 HOME REMEDIES:
+[Traditional Indian remedies that help]
+[How to use them]
+[How long they take]
 
-⏱️ Timeline: [Recovery time]
+🍽️ FOOD RECOMMENDATIONS:
+[Indian foods that help your condition]
+[Why they help]
+[How to eat them]
 
-Risk: [GREEN/YELLOW/RED]
+❌ FOODS TO AVOID:
+[Foods that make it worse]
+[Why to avoid them]
+
+💪 LIFESTYLE CHANGES:
+[Daily habits to improve]
+[Things to avoid]
+[Rest and activity levels]
+
+📚 IMPORTANT FACTS:
+[Medical facts about this condition]
+[How common it is]
+[Risk factors]
+
+✅ PREVENTION:
+[How to prevent this in future]
 
 ---
 
-Then provide:
-
-OVERALL RISK: [GREEN/YELLOW/RED]
-
-HOME REMEDIES:
-[Specific remedies for THEIR values]
+OVERALL RISK LEVEL: [GREEN/YELLOW/RED]
 
 SUMMARY:
-[Overall health status]
+[Brief summary of their situation]
 
-RESPOND ONLY IN {lang_name}. NO ENGLISH."""
+DISCLAIMER:
+This is general health information. Please consult a qualified doctor for proper diagnosis and treatment.
+
+Respond ONLY in {lang_name}"""
                         }
                     ],
-                    max_tokens=3500,
+                    max_tokens=4000,
                     temperature=0.7
                 )
                 
-                print("Groq response received")
                 result = response.choices[0].message.content
                 
-                # Split explanation and remedies
-                if "HOME REMEDIES" in result:
-                    parts = result.split("HOME REMEDIES", 1)
-                    explanation = parts[0].strip()
-                    remedies = "HOME REMEDIES" + parts[1]
-                else:
-                    explanation = result
-                    remedies = "Please consult a qualified doctor."
-                
                 report.ai_explanation = result
-                report.risk_category = get_risk_category(explanation)
+                report.risk_category = get_risk_category(result)
                 report.save()
-                print("Analysis complete")
                 
-                return render(request, 'reports/result.html', {
+                return render(request, 'reports/voice_result.html', {
                     'report': report,
-                    'explanation': explanation.strip(),
-                    'remedies': remedies.strip(),
+                    'explanation': result.strip(),
                     'risk': report.risk_category,
                     'language': lang_name,
+                    'symptoms': symptom_text,
                 })
             
             except Exception as api_error:
-                print(f"Groq API Error: {api_error}")
-                return render(request, 'reports/upload.html', {'error': f'Analysis error: {str(api_error)}'})
+                return render(request, 'reports/voice.html', {'error': f'Error: {str(api_error)}'})
         
         except Exception as e:
-            print(f"General Error: {e}")
-            return render(request, 'reports/upload.html', {'error': f'Error: {str(e)}'})
+            return render(request, 'reports/voice.html', {'error': str(e)})
     
+    return render(request, 'reports/voice.html')
+
+def upload_report(request):
+    """Keep original medical report upload for reference"""
+    if request.method == 'POST':
+        return render(request, 'reports/upload.html', {'error': 'Please use Voice Assistant instead'})
     return render(request, 'reports/upload.html')
 
 def history(request):

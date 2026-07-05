@@ -1,0 +1,212 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    🎤 Voice Health Assistant
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    Speak your health concern → AI listens & explains everything
+  </p>
+
+  {% if error %}
+  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px">
+    ⚠️ {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" id="voiceForm">
+      {% csrf_token %}
+
+      <!-- Language Selection -->
+      <div style="margin-bottom:30px">
+        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
+          🌍 Select Your Language
+        </label>
+        <select id="language" name="language" required
+          style="width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;font-size:15px;background:white;cursor:pointer">
+          <option value="">-- Choose Language --</option>
+          <option value="english">🇮🇳 English</option>
+          <option value="hindi">🇮🇳 Hindi (हिंदी)</option>
+          <option value="marathi">🇮🇳 Marathi (मराठी)</option>
+          <option value="bengali">🇮🇳 Bengali (বাংলা)</option>
+          <option value="tamil">🇮🇳 Tamil (தமிழ்)</option>
+          <option value="telugu">🇮🇳 Telugu (తెలుగు)</option>
+        </select>
+      </div>
+
+      <!-- Voice Input Button -->
+      <div style="margin-bottom:30px;text-align:center">
+        <button type="button" id="voiceBtn" onclick="startListening()"
+          style="width:100%;padding:30px;background:#1D9E75;color:white;border:none;border-radius:12px;font-size:18px;font-weight:600;cursor:pointer;transition:all 0.3s">
+          🎤 Tap & Speak Your Health Concern
+        </button>
+        <p style="font-size:12px;color:#666;margin-top:10px">
+          Click and speak about your symptoms, health problem, or concern
+        </p>
+      </div>
+
+      <!-- Listening Status -->
+      <div id="listeningDiv" style="display:none;margin-bottom:30px;padding:20px;background:#e3f2fd;border-radius:8px;text-align:center">
+        <p style="margin:0;color:#1565c0;font-weight:600;font-size:16px">
+          🎤 Listening... Speak now!
+        </p>
+        <div style="margin-top:15px">
+          <div style="width:100%;height:4px;background:#ddd;border-radius:2px;overflow:hidden">
+            <div id="recordingBar" style="width:0%;height:100%;background:#2196F3;animation:expand 0.3s infinite"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Input (Fallback) -->
+      <div style="margin-bottom:30px">
+        <label style="font-size:14px;font-weight:600;color:#333;display:block;margin-bottom:10px">
+          📝 OR Type Your Symptoms
+        </label>
+        <textarea id="symptoms" name="symptoms"
+          style="width:100%;height:120px;padding:12px;border:2px solid #1D9E75;border-radius:8px;font-size:14px"
+          placeholder="Describe your health concern in detail...
+
+Example:
+I have been having severe headaches for 3 days. My head hurts at the back. I also feel dizzy and nauseous. I haven't had fever though."></textarea>
+      </div>
+
+      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;background:#0F6E56;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">
+        🤖 Get Health Guidance
+      </button>
+    </form>
+  </div>
+
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
+    <p style="font-size:14px;color:#92400E;line-height:2">
+      <strong>📋 How to use:</strong><br>
+      1️⃣ Select your language<br>
+      2️⃣ Tap the microphone button<br>
+      3️⃣ Speak your health concern clearly<br>
+      4️⃣ Or type in the text box<br>
+      5️⃣ Click "Get Health Guidance"<br>
+      6️⃣ Get detailed AI explanation! 🎯
+    </p>
+  </div>
+</div>
+
+<style>
+@keyframes expand {
+  0%, 100% { width: 0%; }
+  50% { width: 100%; }
+}
+
+#voiceBtn:hover {
+  background: #158a63;
+  transform: scale(1.02);
+}
+
+#voiceBtn:active {
+  transform: scale(0.98);
+}
+</style>
+
+<script>
+let recognition = null;
+let isListening = false;
+
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  
+  if (!SpeechRecognition) {
+    alert('Speech Recognition not supported in your browser. Please type instead.');
+    return false;
+  }
+  
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  
+  const langSelect = document.getElementById('language').value;
+  const langMap = {
+    'english': 'en-IN',
+    'hindi': 'hi-IN',
+    'marathi': 'mr-IN',
+    'bengali': 'bn-IN',
+    'tamil': 'ta-IN',
+    'telugu': 'te-IN'
+  };
+  
+  recognition.lang = langMap[langSelect] || 'en-IN';
+  
+  recognition.onstart = function() {
+    isListening = true;
+    document.getElementById('listeningDiv').style.display = 'block';
+    document.getElementById('voiceBtn').disabled = true;
+  };
+  
+  recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('symptoms').value = transcript;
+  };
+  
+  recognition.onerror = function(event) {
+    alert('Error: ' + event.error);
+    document.getElementById('listeningDiv').style.display = 'none';
+    document.getElementById('voiceBtn').disabled = false;
+  };
+  
+  recognition.onend = function() {
+    isListening = false;
+    document.getElementById('listeningDiv').style.display = 'none';
+    document.getElementById('voiceBtn').disabled = false;
+  };
+  
+  return true;
+}
+
+function startListening() {
+  if (!recognition) {
+    if (!initSpeechRecognition()) return;
+  }
+  
+  if (!isListening) {
+    document.getElementById('symptoms').value = '';
+    recognition.start();
+  }
+}
+
+document.getElementById('language').addEventListener('change', function() {
+  if (recognition) {
+    recognition.abort();
+    recognition = null;
+  }
+});
+
+document.getElementById('voiceForm').addEventListener('submit', function(e) {
+  const symptoms = document.getElementById('symptoms').value.trim();
+  const language = document.getElementById('language').value;
+  
+  if (!symptoms) {
+    e.preventDefault();
+    alert('Please speak or type your health concern');
+    return false;
+  }
+  
+  if (!language) {
+    e.preventDefault();
+    alert('Please select a language');
+    return false;
+  }
+  
+  if (recognition && isListening) {
+    recognition.stop();
+  }
+});
+
+// Initialize on load
+window.addEventListener('load', function() {
+  initSpeechRecognition();
+});
+</script>
+
+{% endblock %}
