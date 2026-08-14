@@ -1,0 +1,79 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    📸 Disease Detector
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    Upload a photo of your symptom and describe it
+  </p>
+
+  {% if error %}
+  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px">
+    ⚠️ {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Photo Upload -->
+      <div style="margin-bottom:30px">
+        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:15px">
+          📸 Upload Photo of Symptom
+        </label>
+        <input type="file" name="photo" accept="image/*" required
+          style="width:100%;padding:20px;border:3px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
+        <p style="font-size:12px;color:#888;margin-top:8px">
+          Upload photo of rash, wound, lesion, or any visible symptom
+        </p>
+      </div>
+
+      <!-- Symptom Description -->
+      <div style="margin-bottom:30px">
+        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
+          📝 Describe Your Symptom
+        </label>
+        <textarea name="description" required
+          style="width:100%;height:120px;padding:12px;border:2px solid #1D9E75;border-radius:8px;font-size:14px"
+          placeholder="Example:
+Red itchy rash on my arm for 3 days, started after wearing new clothes, spreads when scratched, some burning sensation"></textarea>
+      </div>
+
+      <!-- Language -->
+      <div style="margin-bottom:30px">
+        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
+          🌍 Select Language for Analysis
+        </label>
+        <select name="language" required
+          style="width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;font-size:14px">
+          <option value="">-- Choose Language --</option>
+          <option value="english">🇮🇳 English</option>
+          <option value="hindi">🇮🇳 Hindi (हिंदी)</option>
+          <option value="marathi">🇮🇳 Marathi (मराठी)</option>
+          <option value="bengali">🇮🇳 Bengali (বাংলা)</option>
+          <option value="tamil">🇮🇳 Tamil (தமिழ்)</option>
+          <option value="telugu">🇮🇳 Telugu (తెలుగు)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;background:#0F6E56;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">
+        🤖 Analyze & Detect Disease
+      </button>
+    </form>
+  </div>
+
+  <div class="card" style="background:#FFF7ED;border-color:#FED7AA;margin-top:30px">
+    <p style="font-size:13px;color:#92400E;line-height:1.8">
+      <strong>📋 What to upload:</strong><br>
+      ✓ Clear photo of affected area<br>
+      ✓ Good lighting<br>
+      ✓ Close-up view<br>
+      ✓ Describe when it started & what triggers it
+    </p>
+  </div>
+</div>
+
+{% endblock %}

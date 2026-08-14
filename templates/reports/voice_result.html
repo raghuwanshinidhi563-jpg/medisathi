@@ -4,7 +4,7 @@
 <div class="container">
   <div style="margin-bottom:30px;padding:20px;background:#e8f5e9;border-radius:8px;border-left:5px solid #4caf50">
     <h2 style="margin:0;color:#2e7d32;font-size:24px">✅ Health Guidance Ready!</h2>
-    <p style="margin:5px 0 0 0;color:#558b2f;font-size:14px">Your concern: {{ symptoms }}</p>
+    <p style="margin:5px 0 0 0;color:#558b2f;font-size:14px">Your concern: <strong>{{ symptoms }}</strong></p>
   </div>
 
   <!-- Risk Level Badge -->
@@ -37,17 +37,28 @@
 
   <!-- Action Buttons -->
   <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap">
-    <button onclick="copyToClipboard()" style="flex:1;min-width:150px;padding:12px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600">
+    <button onclick="copyToClipboard()" style="flex:1;min-width:150px;padding:12px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px">
       📋 Copy Full Text
     </button>
-    <a href="{% url 'voice_assistant' %}" style="flex:1;min-width:150px;padding:12px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-align:center;text-decoration:none">
+    <a href="{% url 'voice_assistant' %}" style="flex:1;min-width:150px;padding:12px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;text-align:center;text-decoration:none">
       🎤 Ask Another Question
     </a>
-    <a href="{% url 'history' %}" style="flex:1;min-width:150px;padding:12px;background:#4caf50;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-align:center;text-decoration:none">
+    <a href="{% url 'history' %}" style="flex:1;min-width:150px;padding:12px;background:#4caf50;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;text-align:center;text-decoration:none">
       📚 View History
     </a>
   </div>
 
+  <!-- Home Remedies Section (if available) -->
+  {% if remedies %}
+  <div class="card" style="margin-top:30px;background:#e8f5e9;border-color:#4caf50">
+    <h3 style="color:#2e7d32;font-size:16px;margin-top:0">🌿 Home Remedies & Tips</h3>
+    <div style="line-height:1.7;font-size:14px;color:#333;white-space:pre-wrap;background:#f0faf6;padding:15px;border-radius:6px">
+{{ remedies }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Disclaimer -->
   <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
     <p style="font-size:13px;color:#e65100;line-height:1.6;margin:0">
       <strong>⚠️ IMPORTANT DISCLAIMER:</strong><br>
@@ -55,17 +66,50 @@
       Please consult a qualified healthcare provider for proper diagnosis and treatment. In case of emergency, call 911 or visit the nearest hospital immediately.
     </p>
   </div>
+
+  <!-- Print Option -->
+  <div style="margin-top:20px;text-align:center">
+    <button onclick="window.print()" style="padding:10px 20px;background:#666;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">
+      🖨️ Print This Report
+    </button>
+  </div>
 </div>
 
 <script>
 function copyToClipboard() {
   const text = document.querySelector('div[style*="white-space"]').innerText;
   navigator.clipboard.writeText(text).then(function() {
-    alert('✅ Copied to clipboard!');
+    alert('✅ Copied to clipboard! You can paste it anywhere.');
   }, function() {
-    alert('Error copying text');
+    alert('Error copying text. Please try selecting and copying manually.');
   });
 }
+
+// Print styling
+window.addEventListener('beforeprint', function() {
+  document.body.style.background = 'white';
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.pageBreakInside = 'avoid';
+  });
+});
 </script>
+
+<style>
+@media print {
+  body {
+    background: white;
+  }
+  .card {
+    page-break-inside: avoid;
+    border: 1px solid #ddd;
+  }
+  button {
+    display: none;
+  }
+  a {
+    display: none;
+  }
+}
+</style>
 
 {% endblock %}

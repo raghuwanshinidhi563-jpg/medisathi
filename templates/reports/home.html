@@ -7,43 +7,89 @@
       🩺 MediSathi
     </h1>
     <p style="font-size:16px;color:#777;margin:0">
-      Your AI Health Assistant for Rural India
+      Complete Healthcare Platform - Diagnosis + Online Doctors
     </p>
   </div>
 
+  <!-- Features Grid -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px">
-    <!-- Voice Assistant Card -->
-    <a href="{% url 'voice_assistant' %}" style="text-decoration:none">
+    
+    <!-- Photo Disease Detector -->
+    <a href="{% url 'disease_detector' %}" style="text-decoration:none">
       <div class="card" style="background:linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);color:white;cursor:pointer;transition:transform 0.3s;text-align:center;padding:40px 20px;min-height:200px;display:flex;flex-direction:column;justify-content:center;border:none">
-        <div style="font-size:48px;margin-bottom:15px">🎤</div>
-        <h2 style="margin:0;font-size:20px;font-weight:700">Voice Health Assistant</h2>
-        <p style="margin:10px 0 0 0;font-size:14px;opacity:0.9">Speak your symptoms<br>Get instant guidance</p>
+        <div style="font-size:48px;margin-bottom:15px">📸</div>
+        <h2 style="margin:0;font-size:20px;font-weight:700">Photo Disease Detector</h2>
+        <p style="margin:10px 0 0 0;font-size:14px;opacity:0.9">Upload symptom photo → Get diagnosis</p>
       </div>
     </a>
 
-    <!-- Skin Disease Detector Card (Coming Soon) -->
-    <div class="card" style="background:#f0faf6;cursor:not-allowed;text-align:center;padding:40px 20px;min-height:200px;display:flex;flex-direction:column;justify-content:center;border:2px dashed #1D9E75;opacity:0.6">
-      <div style="font-size:48px;margin-bottom:15px">🩹</div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:#0F6E56">Skin Disease Detector</h2>
-      <p style="margin:10px 0 0 0;font-size:14px;color:#777">Coming Soon!</p>
-    </div>
+    <!-- Voice/Text Health Assistant -->
+    <a href="{% url 'voice_assistant' %}" style="text-decoration:none">
+      <div class="card" style="background:linear-gradient(135deg, #2196F3 0%, #1565c0 100%);color:white;cursor:pointer;transition:transform 0.3s;text-align:center;padding:40px 20px;min-height:200px;display:flex;flex-direction:column;justify-content:center;border:none">
+        <div style="font-size:48px;margin-bottom:15px">🎤</div>
+        <h2 style="margin:0;font-size:20px;font-weight:700">Health Assistant</h2>
+        <p style="margin:10px 0 0 0;font-size:14px;opacity:0.9">Describe symptoms → Get guidance</p>
+      </div>
+    </a>
   </div>
 
+  <!-- Info Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-bottom:40px">
+    
+    <div class="card" style="text-align:center;background:#e8f5e9;border-color:#4caf50">
+      <p style="font-size:24px;margin:0;font-weight:700;color:#2e7d32">6+</p>
+      <p style="font-size:12px;color:#558b2f;margin:5px 0 0 0">Languages Supported</p>
+    </div>
+
+    <div class="card" style="text-align:center;background:#e3f2fd;border-color:#2196F3">
+      <p style="font-size:24px;margin:0;font-weight:700;color:#1565c0">1000+</p>
+      <p style="font-size:12px;color:#0d47a1;margin:5px 0 0 0">Online Doctors</p>
+    </div>
+
+    <div class="card" style="text-align:center;background:#fff3e0;border-color:#ff9800">
+      <p style="font-size:24px;margin:0;font-weight:700;color:#e65100">Pan-India</p>
+      <p style="font-size:12px;color:#f57c00;margin:5px 0 0 0">Coverage</p>
+    </div>
+
+  </div>
+
+  <!-- Features -->
   <div class="card" style="background:#FFF7ED;border-color:#FED7AA">
-    <h3 style="color:#0F6E56;margin-top:0">✨ Features</h3>
+    <h3 style="color:#0F6E56;margin-top:0">✨ What We Offer</h3>
     <ul style="color:#666;line-height:2;margin:0;padding-left:20px">
-      <li>🎤 Voice input in Indian languages</li>
+      <li>📸 Photo-based disease detection</li>
+      <li>📝 Text & voice symptom input</li>
       <li>🤖 AI-powered health guidance</li>
-      <li>📚 Detailed explanations & facts</li>
-      <li>🌿 Home remedies & diet tips</li>
-      <li>⚠️ Risk assessment & urgency</li>
-      <li>🏥 Doctor consultation guidance</li>
+      <li>🌿 Home remedies in your language</li>
+      <li>⚠️ Risk level assessment (GREEN/YELLOW/RED)</li>
+      <li>👨‍⚕️ Find online doctors across India</li>
+      <li>💰 Transparent pricing & timing</li>
+      <li>📅 Easy online consultation booking</li>
     </ul>
   </div>
 
-  <div class="card" style="background:#fff3e0;border-color:#ff9800">
+  <!-- How It Works -->
+  <div class="card" style="background:#f0faf6;border-color:#1D9E75;margin-top:30px">
+    <h3 style="color:#0F6E56;margin-top:0">📋 How It Works</h3>
+    <div style="line-height:2;color:#333;font-size:14px">
+      <strong>1️⃣ Upload or Describe</strong><br>
+      Upload a photo of your symptom or describe your health concern<br><br>
+      
+      <strong>2️⃣ AI Analysis</strong><br>
+      Get instant diagnosis, risk level, and home remedies<br><br>
+      
+      <strong>3️⃣ Find Doctors</strong><br>
+      Browse verified online doctors across India<br><br>
+      
+      <strong>4️⃣ Consult</strong><br>
+      Book online consultation at your convenience<br>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
     <p style="margin:0;color:#e65100;font-size:12px">
-      ⚠️ <strong>DISCLAIMER:</strong> This is for educational purposes only. Not a substitute for professional medical advice. Always consult a qualified doctor.
+      <strong>⚠️ DISCLAIMER:</strong> This is for educational purposes only. Always consult qualified doctors for proper diagnosis and treatment.
     </p>
   </div>
 </div>

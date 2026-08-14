@@ -1,0 +1,117 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
+    👨‍⚕️ Online Doctors Available
+  </h2>
+  <p style="color:#777;margin-bottom:28px">
+    {{ doctor_count }} verified doctors for {{ disease|title }}
+  </p>
+
+  {% if doctors %}
+    {% for doctor in doctors %}
+    <div class="card" style="border-left:5px solid #1D9E75;margin-bottom:20px">
+      <!-- Doctor Header -->
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
+        <div>
+          <h3 style="margin:0;color:#0F6E56;font-size:18px;font-weight:700">
+            Dr. {{ doctor.name }}
+          </h3>
+          <p style="margin:5px 0 0 0;color:#777;font-size:13px">
+            {{ doctor.specialty }} • {{ doctor.experience }} experience
+          </p>
+        </div>
+        <div style="text-align:right">
+          <p style="margin:0;color:#1D9E75;font-size:16px;font-weight:700">
+            ⭐ {{ doctor.rating }}
+          </p>
+          <p style="margin:3px 0 0 0;color:#888;font-size:12px">
+            Rating
+          </p>
+        </div>
+      </div>
+
+      <!-- Hospital & Location -->
+      <div style="margin-bottom:15px;padding:10px;background:#f0faf6;border-radius:6px">
+        <p style="margin:0;color:#333;font-size:13px">
+          <strong>🏥 Hospital:</strong> {{ doctor.hospital }}, {{ doctor.city }}
+        </p>
+      </div>
+
+      <!-- Details Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px">
+        <!-- Fees -->
+        <div style="padding:12px;background:#e8f5e9;border-radius:6px;border-left:3px solid #4caf50">
+          <p style="margin:0;color:#555;font-size:12px">💰 Consultation Fee</p>
+          <p style="margin:5px 0 0 0;color:#2e7d32;font-size:16px;font-weight:700">
+            ₹{{ doctor.fees }}
+          </p>
+          <p style="margin:3px 0 0 0;color:#666;font-size:11px">
+            for {{ doctor.duration }} minutes
+          </p>
+        </div>
+
+        <!-- Timing -->
+        <div style="padding:12px;background:#e3f2fd;border-radius:6px;border-left:3px solid #2196F3">
+          <p style="margin:0;color:#555;font-size:12px">🕐 Available</p>
+          <p style="margin:5px 0 0 0;color:#1565c0;font-size:13px;font-weight:600">
+            {{ doctor.timing }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Languages -->
+      <div style="margin-bottom:15px;padding:10px;background:#fff3e0;border-radius:6px;border-left:3px solid #ff9800">
+        <p style="margin:0;color:#555;font-size:12px">🌍 Languages</p>
+        <p style="margin:5px 0 0 0;color:#e65100;font-size:13px">
+          {{ doctor.languages|join:", " }}
+        </p>
+      </div>
+
+      <!-- Status & Button -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px">
+        <div>
+          {% if doctor.availability == 'Available' %}
+            <span style="display:inline-block;padding:5px 12px;background:#e8f5e9;color:#2e7d32;border-radius:6px;font-size:12px;font-weight:600">
+              ✅ {{ doctor.availability }}
+            </span>
+          {% else %}
+            <span style="display:inline-block;padding:5px 12px;background:#ffebee;color:#c62828;border-radius:6px;font-size:12px;font-weight:600">
+              ⏳ {{ doctor.availability }}
+            </span>
+          {% endif %}
+        </div>
+        
+        <form method="POST" action="{% url 'book_consultation' %}" style="margin:0">
+          {% csrf_token %}
+          <input type="hidden" name="doctor_name" value="Dr. {{ doctor.name }}">
+          <input type="hidden" name="doctor_fees" value="{{ doctor.fees }}">
+          <input type="hidden" name="disease" value="{{ disease|title }}">
+          <button type="submit" style="padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px">
+            📅 Book Consultation
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card" style="text-align:center;padding:40px;background:#e3f2fd">
+      <p style="margin:0;color:#1565c0;font-size:16px;font-weight:600">
+        No doctors found for this condition yet
+      </p>
+      <a href="{% url 'disease_detector' %}" style="display:inline-block;margin-top:15px;padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:600">
+        Try Another Symptom
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
+    <p style="font-size:12px;color:#e65100;line-height:1.6;margin:0">
+      <strong>ℹ️ INFO:</strong> All doctors are verified professionals offering online consultations. Fees shown are for consultation only. Additional charges may apply for prescriptions or follow-ups.
+    </p>
+  </div>
+</div>
+
+{% endblock %}
