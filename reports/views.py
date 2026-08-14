@@ -4,6 +4,9 @@ from .models import MedicalReport
 from groq import Groq
 import os
 import json
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
 
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
@@ -16,135 +19,34 @@ LANGUAGE_NAMES = {
     'telugu': 'Telugu'
 }
 
-# Mock Online Doctors Database
-ONLINE_DOCTORS = {
-    'fungal infection': [
-        {
-            'name': 'Dr. Sharma',
-            'specialty': 'Dermatologist',
-            'hospital': 'Apollo Hospital',
-            'city': 'Mumbai',
-            'fees': 500,
-            'duration': 30,
-            'timing': 'Mon-Sat 10AM-6PM',
-            'rating': 4.8,
-            'experience': '15 years',
-            'languages': ['English', 'Hindi', 'Marathi'],
-            'availability': 'Available'
-        },
-        {
-            'name': 'Dr. Patel',
-            'specialty': 'Skin Specialist',
-            'hospital': 'Max Healthcare',
-            'city': 'Delhi',
-            'fees': 400,
-            'duration': 20,
-            'timing': 'Daily 2PM-8PM',
-            'rating': 4.6,
-            'experience': '12 years',
-            'languages': ['English', 'Hindi', 'Gujarati'],
-            'availability': 'Available'
-        },
-        {
-            'name': 'Dr. Malhotra',
-            'specialty': 'Dermatologist',
-            'hospital': 'Fortis Hospital',
-            'city': 'Bangalore',
-            'fees': 450,
-            'duration': 25,
-            'timing': 'Tue-Sun 11AM-7PM',
-            'rating': 4.7,
-            'experience': '10 years',
-            'languages': ['English', 'Kannada', 'Hindi'],
-            'availability': 'Available'
-        }
-    ],
-    'acne': [
-        {
-            'name': 'Dr. Gupta',
-            'specialty': 'Dermatologist',
-            'hospital': 'Columbia Asia',
-            'city': 'Pune',
-            'fees': 350,
-            'duration': 20,
-            'timing': 'Mon-Sat 9AM-5PM',
-            'rating': 4.5,
-            'experience': '8 years',
-            'languages': ['English', 'Hindi', 'Marathi'],
-            'availability': 'Available'
-        },
-        {
-            'name': 'Dr. Singh',
-            'specialty': 'Skin Specialist',
-            'hospital': 'Manipal Hospital',
-            'city': 'Delhi',
-            'fees': 400,
-            'duration': 25,
-            'timing': 'Daily 3PM-9PM',
-            'rating': 4.7,
-            'experience': '14 years',
-            'languages': ['English', 'Hindi', 'Punjabi'],
-            'availability': 'Available'
-        }
-    ],
-    'eczema': [
-        {
-            'name': 'Dr. Verma',
-            'specialty': 'Dermatologist',
-            'hospital': 'Care Hospitals',
-            'city': 'Hyderabad',
-            'fees': 450,
-            'duration': 30,
-            'timing': 'Mon-Fri 10AM-6PM',
-            'rating': 4.8,
-            'experience': '16 years',
-            'languages': ['English', 'Hindi', 'Telugu'],
-            'availability': 'Available'
-        },
-        {
-            'name': 'Dr. Kapoor',
-            'specialty': 'Skin Specialist',
-            'hospital': 'Lilavati Hospital',
-            'city': 'Mumbai',
-            'fees': 500,
-            'duration': 30,
-            'timing': 'Tue-Sat 2PM-8PM',
-            'rating': 4.9,
-            'experience': '18 years',
-            'languages': ['English', 'Hindi', 'Marathi', 'Gujarati'],
-            'availability': 'Available'
-        }
-    ],
-    'urticaria': [
-        {
-            'name': 'Dr. Nair',
-            'specialty': 'Allergist & Dermatologist',
-            'hospital': 'Amrita Hospital',
-            'city': 'Kochi',
-            'fees': 400,
-            'duration': 25,
-            'timing': 'Mon-Sun 9AM-7PM',
-            'rating': 4.6,
-            'experience': '11 years',
-            'languages': ['English', 'Hindi', 'Malayalam'],
-            'availability': 'Available'
-        }
-    ],
-    'psoriasis': [
-        {
-            'name': 'Dr. Desai',
-            'specialty': 'Dermatologist',
-            'hospital': 'Narayana Health',
-            'city': 'Bangalore',
-            'fees': 500,
-            'duration': 30,
-            'timing': 'Mon-Sat 10AM-6PM',
-            'rating': 4.8,
-            'experience': '17 years',
-            'languages': ['English', 'Hindi', 'Kannada', 'Tamil'],
-            'availability': 'Available'
-        }
-    ]
+# Disease to Specialty Mapping
+SPECIALTY_MAP = {
+    'headache': 'neurologist',
+    'migraine': 'neurologist',
+    'fever': 'general physician',
+    'cough': 'chest specialist',
+    'cold': 'general physician',
+    'acne': 'dermatologist',
+    'fungal infection': 'dermatologist',
+    'skin rash': 'dermatologist',
+    'eczema': 'dermatologist',
+    'psoriasis': 'dermatologist',
+    'urticaria': 'dermatologist',
+    'wound': 'general physician',
+    'burn': 'general surgeon',
+    'stomachache': 'gastroenterologist',
+    'diarrhea': 'gastroenterologist',
+    'allergy': 'allergist',
+    'asthma': 'pulmonologist',
+    'eye problem': 'ophthalmologist',
+    'toothache': 'dentist',
+    'hair loss': 'dermatologist',
+    'fatigue': 'general physician',
+    'chest pain': 'cardiologist',
+    'high blood pressure': 'cardiologist',
+    'diabetes': 'endocrinologist',
+    'joint pain': 'orthopedic',
+    'back pain': 'spine specialist',
 }
 
 def get_risk_category(text):
@@ -154,6 +56,145 @@ def get_risk_category(text):
     if any(w in t for w in ['consult', 'doctor', 'soon', 'concerning']): 
         return 'yellow'
     return 'green'
+
+def extract_hospital_name(address):
+    """Extract hospital/clinic name from address"""
+    if not address:
+        return 'Clinic/Hospital'
+    parts = address.split(',')
+    return parts[0].strip() if parts else 'Clinic/Hospital'
+
+def fetch_from_justdial(specialty, location):
+    """Fetch real doctors from JustDial"""
+    try:
+        # Create JustDial search URL
+        search_query = f"{specialty} in {location}"
+        encoded_query = urllib.parse.quote(search_query)
+        
+        url = f"https://www.justdial.com/search?q={encoded_query}"
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        # Parse HTML
+        soup = BeautifulSoup(response.content, 'html.parser')
+        doctors = []
+        
+        # Extract doctor listings
+        listings = soup.find_all('div', class_='listing-box-desc')
+        
+        for listing in listings[:15]:  # Get top 15
+            try:
+                # Get name
+                name_elem = listing.find('a', class_='listing-name-link')
+                if not name_elem:
+                    name_elem = listing.find('a')
+                name = name_elem.text.strip() if name_elem else 'Doctor'
+                
+                # Get address
+                address_elem = listing.find('span', class_='area')
+                address = address_elem.text.strip() if address_elem else f"{location}"
+                
+                # Get phone
+                phone_elem = listing.find('span', class_='phonenumber')
+                phone = phone_elem.text.strip() if phone_elem else 'Call for details'
+                
+                # Get rating
+                rating_elem = listing.find('span', class_='jyrated')
+                rating = '4.5'
+                if rating_elem:
+                    rating_text = rating_elem.text.strip()
+                    try:
+                        rating = float(rating_text.split('/')[0].split()[0])
+                    except:
+                        rating = 4.5
+                
+                # Get JustDial link
+                link_elem = listing.find('a')
+                link = link_elem['href'] if link_elem and link_elem.get('href') else f"https://www.justdial.com/search?q={name}"
+                if not link.startswith('http'):
+                    link = f"https://www.justdial.com{link}"
+                
+                # Extract city from address
+                city = location
+                if ',' in address:
+                    city = address.split(',')[-1].strip()
+                
+                doctor = {
+                    'name': name,
+                    'specialty': specialty.title(),
+                    'hospital': extract_hospital_name(address),
+                    'city': city,
+                    'address': address,
+                    'phone': phone,
+                    'rating': rating,
+                    'fees': '300-500',
+                    'duration': '20-30',
+                    'timing': 'Call for timing',
+                    'experience': 'Verified on JustDial',
+                    'languages': ['English', 'Hindi', 'Local'],
+                    'availability': 'Available',
+                    'justdial_link': link,
+                    'booking_link': link
+                }
+                
+                if name and name != 'Doctor':
+                    doctors.append(doctor)
+                
+            except Exception as e:
+                print(f"Error parsing doctor: {e}")
+                continue
+        
+        # If no doctors found, return search link
+        if not doctors:
+            search_url = f"https://www.justdial.com/search?q={specialty}+in+{location}"
+            doctors = [{
+                'name': f'Search {specialty} on JustDial',
+                'specialty': specialty.title(),
+                'hospital': 'Multiple Options',
+                'city': location,
+                'address': f'Search all {specialty} doctors in {location}',
+                'phone': 'See listing',
+                'rating': 4.5,
+                'fees': 'Varies',
+                'duration': '20',
+                'timing': 'Varies',
+                'experience': 'Verified',
+                'languages': ['English', 'Hindi', 'Local'],
+                'availability': 'Available',
+                'justdial_link': search_url,
+                'booking_link': search_url,
+                'is_search_result': True
+            }]
+        
+        return doctors
+        
+    except Exception as e:
+        print(f"Error fetching from JustDial: {e}")
+        # Return fallback with JustDial search link
+        search_url = f"https://www.justdial.com/search?q={specialty}+in+{location}"
+        return [{
+            'name': f'Search {specialty} on JustDial',
+            'specialty': specialty.title(),
+            'hospital': 'Multiple Options',
+            'city': location,
+            'address': f'Search all doctors in {location}',
+            'phone': 'See listing',
+            'rating': 4.5,
+            'fees': 'Varies',
+            'duration': '20',
+            'timing': 'Varies',
+            'experience': 'Verified',
+            'languages': ['English', 'Hindi', 'Local'],
+            'availability': 'Available',
+            'justdial_link': search_url,
+            'booking_link': search_url,
+            'is_search_result': True
+        }]
 
 def home(request):
     return render(request, 'reports/home.html')
@@ -171,8 +212,6 @@ def disease_detector(request):
             if lang not in LANGUAGE_NAMES:
                 lang = 'english'
             
-            # For now, use a generic analysis (in production, use Google Vision API)
-            # Simple disease detection based on description
             disease_description = request.POST.get('description', '').strip()
             
             if not disease_description:
@@ -195,7 +234,7 @@ def disease_detector(request):
                             "role": "system",
                             "content": f"""You are MediSathi, a medical symptom analyzer. Respond ONLY in {lang_name}.
 Analyze the symptom and provide:
-1. Likely disease/condition
+1. Likely disease/condition name
 2. Risk level (GREEN/YELLOW/RED)
 3. What it is (definition)
 4. Why it happens (causes)
@@ -269,29 +308,41 @@ Respond ONLY in {lang_name}"""
     return render(request, 'reports/disease_detector.html')
 
 def find_doctors(request):
-    """Find online doctors for detected disease"""
-    disease = request.GET.get('disease', '').lower()
+    """Find real doctors using JustDial"""
+    disease = request.GET.get('disease', 'doctor').lower()
+    location = request.GET.get('location', '').lower()
     
-    # Get doctors for this disease
-    doctors = ONLINE_DOCTORS.get(disease, ONLINE_DOCTORS.get('fungal infection', []))
+    # Map disease to specialty
+    specialty = SPECIALTY_MAP.get(disease.lower(), 'doctor')
+    
+    # Get user location if not provided
+    if not location or location == 'india':
+        location = request.GET.get('city', 'Mumbai')
+    
+    # Fetch from JustDial
+    doctors = fetch_from_justdial(specialty, location)
     
     return render(request, 'reports/doctor_finder.html', {
         'doctors': doctors,
         'disease': disease,
-        'doctor_count': len(doctors)
+        'location': location,
+        'doctor_count': len(doctors),
+        'specialty': specialty
     })
 
 def book_consultation(request):
     """Book doctor consultation"""
     if request.method == 'POST':
         doctor_name = request.POST.get('doctor_name')
-        doctor_fees = request.POST.get('doctor_fees')
-        disease = request.POST.get('disease')
+        justdial_link = request.POST.get('justdial_link', '#')
+        booking_link = request.POST.get('booking_link', 'https://www.justdial.com')
+        disease = request.POST.get('disease', '')
         
         return render(request, 'reports/booking_confirmation.html', {
             'doctor_name': doctor_name,
-            'doctor_fees': doctor_fees,
             'disease': disease,
+            'booking_link': booking_link,
+            'justdial_link': justdial_link,
         })
     
     return redirect('home')

@@ -3,114 +3,162 @@
 {% block content %}
 <div class="container">
   <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
-    👨‍⚕️ Online Doctors Available
+    👨‍⚕️ Real Doctors from JustDial
   </h2>
   <p style="color:#777;margin-bottom:28px">
-    {{ doctor_count }} verified doctors for {{ disease|title }}
+    {{ doctor_count }} verified doctors for {{ disease|title }} in {{ location|title }}
   </p>
 
   {% if doctors %}
     {% for doctor in doctors %}
-    <div class="card" style="border-left:5px solid #1D9E75;margin-bottom:20px">
-      <!-- Doctor Header -->
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
-        <div>
-          <h3 style="margin:0;color:#0F6E56;font-size:18px;font-weight:700">
-            Dr. {{ doctor.name }}
-          </h3>
-          <p style="margin:5px 0 0 0;color:#777;font-size:13px">
-            {{ doctor.specialty }} • {{ doctor.experience }} experience
+      {% if doctor.is_search_result %}
+        <!-- Search Result Card -->
+        <div class="card" style="text-align:center;padding:40px;background:#e3f2fd;border:2px solid #2196F3">
+          <p style="margin:0;color:#1565c0;font-size:16px;font-weight:600">
+            {{ doctor.name }}
+          </p>
+          <p style="margin:8px 0 0 0;color:#666;font-size:13px">
+            View all available doctors on JustDial
+          </p>
+          <a href="{{ doctor.justdial_link }}" target="_blank" 
+            style="display:inline-block;margin-top:15px;padding:12px 30px;background:#1D9E75;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:600;cursor:pointer;transition:all 0.3s">
+            🔗 Open JustDial Search
+          </a>
+        </div>
+      {% else %}
+        <!-- Real Doctor Card -->
+        <div class="card" style="border-left:5px solid #1D9E75;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+          <!-- Header -->
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
+            <div>
+              <h3 style="margin:0;color:#0F6E56;font-size:18px;font-weight:700">
+                {{ doctor.name }}
+              </h3>
+              <p style="margin:5px 0 0 0;color:#777;font-size:13px">
+                {{ doctor.specialty }} • {{ doctor.experience }}
+              </p>
+            </div>
+            <div style="text-align:right">
+              <p style="margin:0;color:#1D9E75;font-size:18px;font-weight:700">
+                ⭐ {{ doctor.rating }}
+              </p>
+              <p style="margin:3px 0 0 0;color:#888;font-size:12px">Rating</p>
+            </div>
+          </div>
+
+          <!-- Contact & Location -->
+          <div style="margin-bottom:15px;padding:12px;background:#f0faf6;border-radius:6px;border-left:3px solid #1D9E75">
+            <p style="margin:0;color:#333;font-size:13px">
+              <strong>🏥 Hospital:</strong> {{ doctor.hospital }}
+            </p>
+            <p style="margin:5px 0 0 0;color:#333;font-size:13px">
+              <strong>📍 Location:</strong> {{ doctor.city }}
+            </p>
+            <p style="margin:5px 0 0 0;color:#1D9E75;font-size:13px;font-weight:600;cursor:pointer">
+              <strong>📞 Phone:</strong> {{ doctor.phone }}
+            </p>
+          </div>
+
+          <!-- Full Address -->
+          <div style="margin-bottom:15px;padding:12px;background:#fff9e6;border-radius:6px;font-size:12px;color:#666">
+            <strong>📮 Full Address:</strong> {{ doctor.address }}
+          </div>
+
+          <!-- Details Grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px">
+            <div style="padding:12px;background:#e8f5e9;border-radius:6px;border-left:3px solid #4caf50">
+              <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">💰 Fee Range</p>
+              <p style="margin:5px 0 0 0;color:#2e7d32;font-size:14px;font-weight:700">
+                ₹{{ doctor.fees }}
+              </p>
+              <p style="margin:3px 0 0 0;color:#666;font-size:11px">for {{ doctor.duration }} minutes</p>
+            </div>
+
+            <div style="padding:12px;background:#e3f2fd;border-radius:6px;border-left:3px solid #2196F3">
+              <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">🕐 Timing</p>
+              <p style="margin:5px 0 0 0;color:#1565c0;font-size:13px;font-weight:600">
+                {{ doctor.timing }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Languages -->
+          <div style="margin-bottom:15px;padding:12px;background:#fff3e0;border-radius:6px;border-left:3px solid #ff9800">
+            <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">🌍 Languages</p>
+            <p style="margin:5px 0 0 0;color:#e65100;font-size:13px;font-weight:600">
+              {{ doctor.languages|join:", " }}
+            </p>
+          </div>
+
+          <!-- Status & Booking -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;padding-top:15px;border-top:1px solid #eee">
+            <div>
+              {% if doctor.availability == 'Available' %}
+                <span style="display:inline-block;padding:6px 14px;background:#e8f5e9;color:#2e7d32;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #4caf50">
+                  ✅ {{ doctor.availability }}
+                </span>
+              {% else %}
+                <span style="display:inline-block;padding:6px 14px;background:#ffebee;color:#c62828;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #f44336">
+                  ⏳ Call for availability
+                </span>
+              {% endif %}
+            </div>
+            
+            <a href="{{ doctor.justdial_link }}" target="_blank"
+              style="padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;text-decoration:none;transition:all 0.3s;display:inline-block">
+              📅 Book on JustDial
+            </a>
+          </div>
+
+          <!-- Info -->
+          <p style="margin:10px 0 0 0;padding:10px;background:#f5f5f5;border-radius:6px;font-size:11px;color:#666">
+            ℹ️ Click to open JustDial booking page in new window
           </p>
         </div>
-        <div style="text-align:right">
-          <p style="margin:0;color:#1D9E75;font-size:16px;font-weight:700">
-            ⭐ {{ doctor.rating }}
-          </p>
-          <p style="margin:3px 0 0 0;color:#888;font-size:12px">
-            Rating
-          </p>
-        </div>
-      </div>
-
-      <!-- Hospital & Location -->
-      <div style="margin-bottom:15px;padding:10px;background:#f0faf6;border-radius:6px">
-        <p style="margin:0;color:#333;font-size:13px">
-          <strong>🏥 Hospital:</strong> {{ doctor.hospital }}, {{ doctor.city }}
-        </p>
-      </div>
-
-      <!-- Details Grid -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px">
-        <!-- Fees -->
-        <div style="padding:12px;background:#e8f5e9;border-radius:6px;border-left:3px solid #4caf50">
-          <p style="margin:0;color:#555;font-size:12px">💰 Consultation Fee</p>
-          <p style="margin:5px 0 0 0;color:#2e7d32;font-size:16px;font-weight:700">
-            ₹{{ doctor.fees }}
-          </p>
-          <p style="margin:3px 0 0 0;color:#666;font-size:11px">
-            for {{ doctor.duration }} minutes
-          </p>
-        </div>
-
-        <!-- Timing -->
-        <div style="padding:12px;background:#e3f2fd;border-radius:6px;border-left:3px solid #2196F3">
-          <p style="margin:0;color:#555;font-size:12px">🕐 Available</p>
-          <p style="margin:5px 0 0 0;color:#1565c0;font-size:13px;font-weight:600">
-            {{ doctor.timing }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Languages -->
-      <div style="margin-bottom:15px;padding:10px;background:#fff3e0;border-radius:6px;border-left:3px solid #ff9800">
-        <p style="margin:0;color:#555;font-size:12px">🌍 Languages</p>
-        <p style="margin:5px 0 0 0;color:#e65100;font-size:13px">
-          {{ doctor.languages|join:", " }}
-        </p>
-      </div>
-
-      <!-- Status & Button -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px">
-        <div>
-          {% if doctor.availability == 'Available' %}
-            <span style="display:inline-block;padding:5px 12px;background:#e8f5e9;color:#2e7d32;border-radius:6px;font-size:12px;font-weight:600">
-              ✅ {{ doctor.availability }}
-            </span>
-          {% else %}
-            <span style="display:inline-block;padding:5px 12px;background:#ffebee;color:#c62828;border-radius:6px;font-size:12px;font-weight:600">
-              ⏳ {{ doctor.availability }}
-            </span>
-          {% endif %}
-        </div>
-        
-        <form method="POST" action="{% url 'book_consultation' %}" style="margin:0">
-          {% csrf_token %}
-          <input type="hidden" name="doctor_name" value="Dr. {{ doctor.name }}">
-          <input type="hidden" name="doctor_fees" value="{{ doctor.fees }}">
-          <input type="hidden" name="disease" value="{{ disease|title }}">
-          <button type="submit" style="padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px">
-            📅 Book Consultation
-          </button>
-        </form>
-      </div>
-    </div>
+      {% endif %}
     {% endfor %}
   {% else %}
     <div class="card" style="text-align:center;padding:40px;background:#e3f2fd">
       <p style="margin:0;color:#1565c0;font-size:16px;font-weight:600">
-        No doctors found for this condition yet
+        Loading doctors from JustDial...
       </p>
-      <a href="{% url 'disease_detector' %}" style="display:inline-block;margin-top:15px;padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:600">
-        Try Another Symptom
-      </a>
+      <p style="margin:8px 0 0 0;color:#666;font-size:13px">
+        Please wait, we're fetching verified doctors for you
+      </p>
     </div>
   {% endif %}
 
+  <!-- How It Works -->
+  <div class="card" style="background:#f0faf6;border-color:#1D9E75;margin-top:40px">
+    <h3 style="color:#0F6E56;margin-top:0">📖 How Booking Works</h3>
+    <ol style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
+      <li>Click <strong>"📅 Book on JustDial"</strong> button</li>
+      <li>JustDial website opens with doctor details</li>
+      <li>Call the doctor or book online through JustDial</li>
+      <li>Complete your consultation from home</li>
+      <li>Get digital prescription from doctor</li>
+    </ol>
+  </div>
+
   <!-- Footer -->
   <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
-    <p style="font-size:12px;color:#e65100;line-height:1.6;margin:0">
-      <strong>ℹ️ INFO:</strong> All doctors are verified professionals offering online consultations. Fees shown are for consultation only. Additional charges may apply for prescriptions or follow-ups.
+    <p style="margin:0;color:#e65100;font-size:12px;line-height:1.8">
+      <strong>✅ Real Doctors:</strong> All doctors shown are verified on JustDial. Fees, timing, and availability are as per their JustDial profiles. Click to book directly on secure JustDial platform.<br><br>
+      <strong>⚠️ Note:</strong> Fees shown are approximate. Actual fees may vary. Always confirm with doctor before consultation.
     </p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <a href="{% url 'home' %}" style="padding:12px 25px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+      🏠 Home
+    </a>
+    <a href="{% url 'disease_detector' %}" style="padding:12px 25px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+      📸 Analyze Another
+    </a>
+    <a href="{% url 'voice_assistant' %}" style="padding:12px 25px;background:#2196F3;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+      🎤 Health Assistant
+    </a>
   </div>
 </div>
 

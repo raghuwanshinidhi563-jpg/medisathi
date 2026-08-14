@@ -3,8 +3,8 @@
 {% block content %}
 <div class="container">
   <div style="margin-bottom:30px;padding:20px;background:#e8f5e9;border-radius:8px;border-left:5px solid #4caf50">
-    <h2 style="margin:0;color:#2e7d32;font-size:24px">✅ Health Guidance Ready!</h2>
-    <p style="margin:5px 0 0 0;color:#558b2f;font-size:14px">Your concern: <strong>{{ symptoms }}</strong></p>
+    <h2 style="margin:0;color:#2e7d32;font-size:24px">✅ Health Analysis Complete</h2>
+    <p style="margin:5px 0 0 0;color:#558b2f;font-size:13px">Your symptoms: <strong>{{ symptoms }}</strong></p>
   </div>
 
   <!-- Risk Level Badge -->
@@ -12,97 +12,79 @@
     {% if risk == 'red' %}
       <div style="padding:20px;background:#ffebee;border-radius:8px;border:2px solid #f44336">
         <p style="margin:0;color:#c62828;font-size:18px;font-weight:700">🚨 URGENT - See Doctor Immediately</p>
-        <p style="margin:5px 0 0 0;color:#d32f2f;font-size:14px">This may need urgent medical attention</p>
+        <p style="margin:5px 0 0 0;color:#d32f2f;font-size:13px">This may need urgent medical attention</p>
       </div>
     {% elif risk == 'yellow' %}
       <div style="padding:20px;background:#fff3e0;border-radius:8px;border:2px solid #ff9800">
         <p style="margin:0;color:#e65100;font-size:18px;font-weight:700">⚠️ CONSULT DOCTOR - Moderate Concern</p>
-        <p style="margin:5px 0 0 0;color:#f57c00;font-size:14px">Should see a doctor soon</p>
+        <p style="margin:5px 0 0 0;color:#f57c00;font-size:13px">Should see a doctor soon</p>
       </div>
     {% else %}
       <div style="padding:20px;background:#e8f5e9;border-radius:8px;border:2px solid #4caf50">
         <p style="margin:0;color:#2e7d32;font-size:18px;font-weight:700">✅ GREEN - Generally Safe</p>
-        <p style="margin:5px 0 0 0;color:#558b2f;font-size:14px">Monitor and try home remedies</p>
+        <p style="margin:5px 0 0 0;color:#558b2f;font-size:13px">Monitor and try home remedies</p>
       </div>
     {% endif %}
   </div>
 
   <!-- Main Explanation -->
   <div class="card">
-    <h3 style="color:#0F6E56;font-size:18px;margin-bottom:15px">📖 Detailed Health Guidance ({{ language }})</h3>
+    <h3 style="color:#0F6E56;font-size:18px;margin-bottom:15px">📖 Detailed Health Guidance</h3>
     <div style="line-height:1.8;font-size:14px;color:#333;white-space:pre-wrap;background:#f9f9f9;padding:20px;border-radius:8px;border-left:4px solid #1D9E75">
 {{ explanation }}
     </div>
   </div>
 
   <!-- Action Buttons -->
-  <a href="{% url 'find_doctors' %}?disease={{ symptoms|lower }}" 
-  style="...">
-  👨‍⚕️ Find Online Doctors
-</a>
+  <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;flex-direction:column">
+    <!-- Find Doctor Button (PRIMARY) -->
+    <a href="{% url 'find_doctors' %}?disease={{ symptoms|lower }}" 
+      style="display:block;padding:15px 30px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-align:center;text-decoration:none;font-size:14px;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
+      👨‍⚕️ Find Online Doctors Near You
+    </a>
 
-  <!-- Home Remedies Section (if available) -->
-  {% if remedies %}
-  <div class="card" style="margin-top:30px;background:#e8f5e9;border-color:#4caf50">
-    <h3 style="color:#2e7d32;font-size:16px;margin-top:0">🌿 Home Remedies & Tips</h3>
-    <div style="line-height:1.7;font-size:14px;color:#333;white-space:pre-wrap;background:#f0faf6;padding:15px;border-radius:6px">
-{{ remedies }}
+    <!-- Secondary Actions -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button onclick="copyToClipboard()" style="flex:1;min-width:140px;padding:12px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.3s">
+        📋 Copy Analysis
+      </button>
+      <a href="{% url 'voice_assistant' %}" style="flex:1;min-width:140px;padding:12px;background:#2196F3;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-align:center;text-decoration:none;font-size:13px;transition:all 0.3s">
+        🎤 Ask Another
+      </a>
+      <a href="{% url 'history' %}" style="flex:1;min-width:140px;padding:12px;background:#4caf50;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-align:center;text-decoration:none;font-size:13px;transition:all 0.3s">
+        📚 View History
+      </a>
     </div>
   </div>
-  {% endif %}
 
-  <!-- Disclaimer -->
-  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
-    <p style="font-size:13px;color:#e65100;line-height:1.6;margin:0">
-      <strong>⚠️ IMPORTANT DISCLAIMER:</strong><br>
-      This is general health information for educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. 
-      Please consult a qualified healthcare provider for proper diagnosis and treatment. In case of emergency, call 911 or visit the nearest hospital immediately.
+  <!-- Info: Find Doctors -->
+  <div class="card" style="background:#f0faf6;border-color:#1D9E75;margin-top:30px">
+    <h3 style="color:#0F6E56;margin-top:0">👨‍⚕️ Find Real Doctors</h3>
+    <p style="margin:0;color:#333;font-size:13px;line-height:1.8">
+      Click <strong>"Find Online Doctors"</strong> button above to view verified doctors across India who specialize in your condition. 
+      You'll see doctor profiles, fees, availability, and can book consultations directly on JustDial.
     </p>
   </div>
 
-  <!-- Print Option -->
-  <div style="margin-top:20px;text-align:center">
-    <button onclick="window.print()" style="padding:10px 20px;background:#666;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">
-      🖨️ Print This Report
-    </button>
+  <!-- Disclaimer -->
+  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
+    <p style="font-size:12px;color:#e65100;line-height:1.6;margin:0">
+      <strong>⚠️ IMPORTANT DISCLAIMER:</strong><br>
+      This is general health information for educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. 
+      Please consult a qualified healthcare provider for proper diagnosis and treatment. In case of emergency, call emergency services or visit the nearest hospital immediately.
+    </p>
   </div>
 </div>
 
 <script>
 function copyToClipboard() {
-  const text = document.querySelector('div[style*="white-space"]').innerText;
+  const text = document.querySelector('div[style*="white-space:pre-wrap"]').innerText;
   navigator.clipboard.writeText(text).then(function() {
-    alert('✅ Copied to clipboard! You can paste it anywhere.');
+    alert('✅ Copied to clipboard!');
   }, function() {
-    alert('Error copying text. Please try selecting and copying manually.');
+    alert('Error copying text');
   });
 }
-
-// Print styling
-window.addEventListener('beforeprint', function() {
-  document.body.style.background = 'white';
-  document.querySelectorAll('.card').forEach(card => {
-    card.style.pageBreakInside = 'avoid';
-  });
-});
 </script>
-
-<style>
-@media print {
-  body {
-    background: white;
-  }
-  .card {
-    page-break-inside: avoid;
-    border: 1px solid #ddd;
-  }
-  button {
-    display: none;
-  }
-  a {
-    display: none;
-  }
-}
-</style>
 
 {% endblock %}
