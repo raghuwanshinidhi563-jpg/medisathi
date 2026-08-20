@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from .models import MedicalReport
-from groq import Groq
 import os
 import urllib.parse
+from groq import Groq
 
-client = Groq(api_key=os.getenv('GROQ_API_KEY'))
+# Don't initialize here - do it in each function
 
 LANGUAGE_NAMES = {
     'english': 'English',
@@ -81,6 +81,9 @@ def disease_detector(request):
             lang_name = LANGUAGE_NAMES[lang]
             
             try:
+                # Initialize Groq HERE, not at top level
+                client = Groq(api_key=os.getenv('GROQ_API_KEY'))
+                
                 response = client.chat.completions.create(
                     model='llama-3.3-70b-versatile',
                     messages=[
@@ -205,6 +208,9 @@ def voice_assistant(request):
             report.save()
             
             try:
+                # Initialize Groq HERE
+                client = Groq(api_key=os.getenv('GROQ_API_KEY'))
+                
                 response = client.chat.completions.create(
                     model='llama-3.3-70b-versatile',
                     messages=[
