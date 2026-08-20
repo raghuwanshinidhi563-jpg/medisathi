@@ -3,163 +3,186 @@
 {% block content %}
 <div class="container">
   <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
-    👨‍⚕️ Real Doctors from JustDial
+    👨‍⚕️ Find Real Online Doctors
   </h2>
   <p style="color:#777;margin-bottom:28px">
-    {{ doctor_count }} verified doctors for {{ disease|title }} in {{ location|title }}
+    Search for verified {{ specialty }} doctors across India
   </p>
 
-  {% if doctors %}
-    {% for doctor in doctors %}
-      {% if doctor.is_search_result %}
-        <!-- Search Result Card -->
-        <div class="card" style="text-align:center;padding:40px;background:#e3f2fd;border:2px solid #2196F3">
-          <p style="margin:0;color:#1565c0;font-size:16px;font-weight:600">
-            {{ doctor.name }}
-          </p>
-          <p style="margin:8px 0 0 0;color:#666;font-size:13px">
-            View all available doctors on JustDial
-          </p>
-          <a href="{{ doctor.justdial_link }}" target="_blank" 
-            style="display:inline-block;margin-top:15px;padding:12px 30px;background:#1D9E75;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:600;cursor:pointer;transition:all 0.3s">
-            🔗 Open JustDial Search
-          </a>
-        </div>
-      {% else %}
-        <!-- Real Doctor Card -->
-        <div class="card" style="border-left:5px solid #1D9E75;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-          <!-- Header -->
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
-            <div>
-              <h3 style="margin:0;color:#0F6E56;font-size:18px;font-weight:700">
-                {{ doctor.name }}
-              </h3>
-              <p style="margin:5px 0 0 0;color:#777;font-size:13px">
-                {{ doctor.specialty }} • {{ doctor.experience }}
-              </p>
-            </div>
-            <div style="text-align:right">
-              <p style="margin:0;color:#1D9E75;font-size:18px;font-weight:700">
-                ⭐ {{ doctor.rating }}
-              </p>
-              <p style="margin:3px 0 0 0;color:#888;font-size:12px">Rating</p>
-            </div>
-          </div>
+  <!-- Main Options -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:40px">
+    
+    <!-- JustDial -->
+    <a href="{{ justdial_link }}" target="_blank" style="text-decoration:none">
+      <div class="card" style="background:linear-gradient(135deg, #FDB913 0%, #F7B500 100%);color:#333;cursor:pointer;transition:all 0.3s;text-align:center;padding:30px;border:none;min-height:200px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:48px;margin-bottom:15px">🟡</div>
+        <h3 style="margin:0;font-size:18px;font-weight:700">JustDial</h3>
+        <p style="margin:10px 0 0 0;font-size:12px">
+          India's #1 booking platform<br>
+          100,000+ verified doctors<br>
+          Real-time availability
+        </p>
+        <button style="margin-top:15px;padding:10px 20px;background:#333;color:white;border:none;border-radius:6px;font-weight:600;font-size:12px">
+          → Search Doctors
+        </button>
+      </div>
+    </a>
 
-          <!-- Contact & Location -->
-          <div style="margin-bottom:15px;padding:12px;background:#f0faf6;border-radius:6px;border-left:3px solid #1D9E75">
-            <p style="margin:0;color:#333;font-size:13px">
-              <strong>🏥 Hospital:</strong> {{ doctor.hospital }}
-            </p>
-            <p style="margin:5px 0 0 0;color:#333;font-size:13px">
-              <strong>📍 Location:</strong> {{ doctor.city }}
-            </p>
-            <p style="margin:5px 0 0 0;color:#1D9E75;font-size:13px;font-weight:600;cursor:pointer">
-              <strong>📞 Phone:</strong> {{ doctor.phone }}
-            </p>
-          </div>
+    <!-- Practo -->
+    <a href="{{ practo_link }}" target="_blank" style="text-decoration:none">
+      <div class="card" style="background:linear-gradient(135deg, #00C9FF 0%, #92FE1D 100%);color:#333;cursor:pointer;transition:all 0.3s;text-align:center;padding:30px;border:none;min-height:200px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:48px;margin-bottom:15px">💚</div>
+        <h3 style="margin:0;font-size:18px;font-weight:700">Practo</h3>
+        <p style="margin:10px 0 0 0;font-size:12px">
+          Doctor discovery & booking<br>
+          Detailed doctor profiles<br>
+          Patient reviews & ratings
+        </p>
+        <button style="margin-top:15px;padding:10px 20px;background:#333;color:white;border:none;border-radius:6px;font-weight:600;font-size:12px">
+          → Find Doctors
+        </button>
+      </div>
+    </a>
 
-          <!-- Full Address -->
-          <div style="margin-bottom:15px;padding:12px;background:#fff9e6;border-radius:6px;font-size:12px;color:#666">
-            <strong>📮 Full Address:</strong> {{ doctor.address }}
-          </div>
+    <!-- Lybrate -->
+    <a href="{{ lybrate_link }}" target="_blank" style="text-decoration:none">
+      <div class="card" style="background:linear-gradient(135deg, #667EEA 0%, #764BA2 100%);color:white;cursor:pointer;transition:all 0.3s;text-align:center;padding:30px;border:none;min-height:200px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:48px;margin-bottom:15px">💜</div>
+        <h3 style="margin:0;font-size:18px;font-weight:700">Lybrate</h3>
+        <p style="margin:10px 0 0 0;font-size:12px">
+          1000+ specialists online<br>
+          Instant consultation available<br>
+          Video + chat options
+        </p>
+        <button style="margin-top:15px;padding:10px 20px;background:white;color:#667EEA;border:none;border-radius:6px;font-weight:600;font-size:12px">
+          → Book Now
+        </button>
+      </div>
+    </a>
 
-          <!-- Details Grid -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px">
-            <div style="padding:12px;background:#e8f5e9;border-radius:6px;border-left:3px solid #4caf50">
-              <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">💰 Fee Range</p>
-              <p style="margin:5px 0 0 0;color:#2e7d32;font-size:14px;font-weight:700">
-                ₹{{ doctor.fees }}
-              </p>
-              <p style="margin:3px 0 0 0;color:#666;font-size:11px">for {{ doctor.duration }} minutes</p>
-            </div>
-
-            <div style="padding:12px;background:#e3f2fd;border-radius:6px;border-left:3px solid #2196F3">
-              <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">🕐 Timing</p>
-              <p style="margin:5px 0 0 0;color:#1565c0;font-size:13px;font-weight:600">
-                {{ doctor.timing }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Languages -->
-          <div style="margin-bottom:15px;padding:12px;background:#fff3e0;border-radius:6px;border-left:3px solid #ff9800">
-            <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">🌍 Languages</p>
-            <p style="margin:5px 0 0 0;color:#e65100;font-size:13px;font-weight:600">
-              {{ doctor.languages|join:", " }}
-            </p>
-          </div>
-
-          <!-- Status & Booking -->
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;padding-top:15px;border-top:1px solid #eee">
-            <div>
-              {% if doctor.availability == 'Available' %}
-                <span style="display:inline-block;padding:6px 14px;background:#e8f5e9;color:#2e7d32;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #4caf50">
-                  ✅ {{ doctor.availability }}
-                </span>
-              {% else %}
-                <span style="display:inline-block;padding:6px 14px;background:#ffebee;color:#c62828;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #f44336">
-                  ⏳ Call for availability
-                </span>
-              {% endif %}
-            </div>
-            
-            <a href="{{ doctor.justdial_link }}" target="_blank"
-              style="padding:10px 20px;background:#1D9E75;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;text-decoration:none;transition:all 0.3s;display:inline-block">
-              📅 Book on JustDial
-            </a>
-          </div>
-
-          <!-- Info -->
-          <p style="margin:10px 0 0 0;padding:10px;background:#f5f5f5;border-radius:6px;font-size:11px;color:#666">
-            ℹ️ Click to open JustDial booking page in new window
-          </p>
-        </div>
-      {% endif %}
-    {% endfor %}
-  {% else %}
-    <div class="card" style="text-align:center;padding:40px;background:#e3f2fd">
-      <p style="margin:0;color:#1565c0;font-size:16px;font-weight:600">
-        Loading doctors from JustDial...
-      </p>
-      <p style="margin:8px 0 0 0;color:#666;font-size:13px">
-        Please wait, we're fetching verified doctors for you
-      </p>
-    </div>
-  {% endif %}
-
-  <!-- How It Works -->
-  <div class="card" style="background:#f0faf6;border-color:#1D9E75;margin-top:40px">
-    <h3 style="color:#0F6E56;margin-top:0">📖 How Booking Works</h3>
-    <ol style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
-      <li>Click <strong>"📅 Book on JustDial"</strong> button</li>
-      <li>JustDial website opens with doctor details</li>
-      <li>Call the doctor or book online through JustDial</li>
-      <li>Complete your consultation from home</li>
-      <li>Get digital prescription from doctor</li>
-    </ol>
   </div>
 
-  <!-- Footer -->
+  <!-- How to Search -->
+  <div class="card" style="background:#f0faf6;border-color:#1D9E75">
+    <h3 style="color:#0F6E56;margin-top:0">📖 How to Find Your Doctor</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+      
+      <div style="padding:15px;background:white;border-left:4px solid #FDB913;border-radius:6px">
+        <p style="margin:0;color:#555;font-size:12px;font-weight:600;text-transform:uppercase">Step 1</p>
+        <p style="margin:8px 0 0 0;color:#333;font-size:13px;font-weight:600">Click Platform</p>
+        <p style="margin:5px 0 0 0;color:#666;font-size:12px">
+          Select JustDial, Practo or Lybrate
+        </p>
+      </div>
+
+      <div style="padding:15px;background:white;border-left:4px solid #00C9FF;border-radius:6px">
+        <p style="margin:0;color:#555;font-size:12px;font-weight:600;text-transform:uppercase">Step 2</p>
+        <p style="margin:8px 0 0 0;color:#333;font-size:13px;font-weight:600">Search Specialty</p>
+        <p style="margin:5px 0 0 0;color:#666;font-size:12px">
+          Search for: <strong>{{ specialty }}</strong>
+        </p>
+      </div>
+
+      <div style="padding:15px;background:white;border-left:4px solid #667EEA;border-radius:6px">
+        <p style="margin:0;color:#555;font-size:12px;font-weight:600;text-transform:uppercase">Step 3</p>
+        <p style="margin:8px 0 0 0;color:#333;font-size:13px;font-weight:600">Book Doctor</p>
+        <p style="margin:5px 0 0 0;color:#666;font-size:12px">
+          Check availability & book
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- What to Look For -->
+  <div class="card" style="background:#e3f2fd;border-color:#2196F3;margin-top:30px">
+    <h3 style="color:#1565c0;margin-top:0">✅ What to Look For in a Doctor</h3>
+    <ul style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
+      <li><strong>Specialization:</strong> Look for {{ specialty }}</li>
+      <li><strong>Qualifications:</strong> MD/DNB/DM or equivalent</li>
+      <li><strong>Experience:</strong> Prefer 5+ years</li>
+      <li><strong>Reviews & Ratings:</strong> 4+ stars minimum</li>
+      <li><strong>Consultation Mode:</strong> Video/Chat/Phone available</li>
+      <li><strong>Availability:</strong> Check online slots</li>
+      <li><strong>Fees:</strong> Varies (typically ₹300-1000)</li>
+    </ul>
+  </div>
+
+  <!-- Why These Platforms -->
   <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
-    <p style="margin:0;color:#e65100;font-size:12px;line-height:1.8">
-      <strong>✅ Real Doctors:</strong> All doctors shown are verified on JustDial. Fees, timing, and availability are as per their JustDial profiles. Click to book directly on secure JustDial platform.<br><br>
-      <strong>⚠️ Note:</strong> Fees shown are approximate. Actual fees may vary. Always confirm with doctor before consultation.
+    <h3 style="color:#e65100;margin-top:0">🏆 Why These Platforms?</h3>
+    <p style="color:#333;line-height:1.8;font-size:13px;margin:0">
+      <strong>✅ All doctors are VERIFIED</strong> - Background checks, credentials verified<br>
+      <strong>✅ REAL REVIEWS</strong> - Actual patient feedback and ratings<br>
+      <strong>✅ SECURE BOOKING</strong> - Safe payment & appointment confirmation<br>
+      <strong>✅ TRANSPARENT PRICING</strong> - No hidden charges<br>
+      <strong>✅ 24/7 AVAILABILITY</strong> - Book anytime, consult online
     </p>
   </div>
 
+  <!-- Example Search -->
+  <div class="card" style="background:#e8f5e9;border-color:#4caf50;margin-top:30px">
+    <h3 style="color:#2e7d32;margin-top:0">💡 Example: Your Disease</h3>
+    <div style="background:white;padding:15px;border-radius:6px;margin-top:10px;font-size:13px;line-height:1.8">
+      <p style="margin:0"><strong>🩺 Your Condition:</strong> {{ disease|title }}</p>
+      <p style="margin:8px 0 0 0"><strong>👨‍⚕️ Search For:</strong> {{ specialty }}</p>
+      <p style="margin:8px 0 0 0"><strong>📍 Select Your City:</strong> Choose your location</p>
+      <p style="margin:8px 0 0 0"><strong>⭐ Filter By:</strong> Rating, Experience, Fees</p>
+      <p style="margin:8px 0 0 0"><strong>✅ Book:</strong> Select time slot & confirm</p>
+    </div>
+  </div>
+
   <!-- Action Buttons -->
+  <div style="margin-top:40px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <a href="{{ justdial_link }}" target="_blank"
+      style="padding:14px 30px;background:#FDB913;color:#333;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;transition:all 0.3s">
+      🔗 Open JustDial
+    </a>
+    <a href="{{ practo_link }}" target="_blank"
+      style="padding:14px 30px;background:#00C9FF;color:#333;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;transition:all 0.3s">
+      🔗 Open Practo
+    </a>
+    <a href="{{ lybrate_link }}" target="_blank"
+      style="padding:14px 30px;background:#667EEA;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;transition:all 0.3s">
+      🔗 Open Lybrate
+    </a>
+  </div>
+
+  <!-- Back Buttons -->
   <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-    <a href="{% url 'home' %}" style="padding:12px 25px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+    <a href="{% url 'home' %}" 
+      style="padding:12px 25px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
       🏠 Home
     </a>
-    <a href="{% url 'disease_detector' %}" style="padding:12px 25px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+    <a href="{% url 'disease_detector' %}" 
+      style="padding:12px 25px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
       📸 Analyze Another
     </a>
-    <a href="{% url 'voice_assistant' %}" style="padding:12px 25px;background:#2196F3;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+    <a href="{% url 'voice_assistant' %}" 
+      style="padding:12px 25px;background:#2196F3;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
       🎤 Health Assistant
     </a>
   </div>
+
+  <!-- Footer -->
+  <div class="card" style="background:#f5f5f5;border-color:#999;margin-top:40px">
+    <p style="margin:0;color:#666;font-size:12px;line-height:1.8">
+      <strong>ℹ️ Important:</strong> MediSathi helps you identify symptoms and suggest specialist doctors. 
+      All actual bookings happen on JustDial, Practo, or Lybrate. These are secure, verified platforms used by millions in India. 
+      Choose the doctor that best fits your needs and budget.
+    </p>
+  </div>
 </div>
+
+<style>
+a {
+  transition: all 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
 
 {% endblock %}

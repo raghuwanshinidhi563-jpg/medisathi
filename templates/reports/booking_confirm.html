@@ -5,112 +5,153 @@
   <div style="text-align:center;margin-bottom:30px;padding:30px;background:#e8f5e9;border-radius:12px;border:2px solid #4caf50">
     <p style="margin:0;font-size:28px">✅</p>
     <h2 style="margin:10px 0 0 0;color:#2e7d32;font-size:24px;font-weight:700">
-      Opening JustDial!
+      Ready to Book!
     </h2>
     <p style="margin:8px 0 0 0;color:#558b2f;font-size:14px">
-      Redirecting you to book on JustDial...
+      Opening platform to find doctors...
     </p>
+  </div>
+
+  <!-- Info Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px">
+    
+    <!-- What Happens -->
+    <div class="card" style="background:#e3f2fd;border-color:#2196F3">
+      <h3 style="color:#1565c0;margin-top:0;margin-bottom:15px">📖 What Happens Next</h3>
+      <ol style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
+        <li>Platform opens in new tab</li>
+        <li>Search for {{ specialty }}</li>
+        <li>View doctor profiles</li>
+        <li>Check availability & fees</li>
+        <li>Book consultation</li>
+        <li>Get video call link</li>
+      </ol>
+    </div>
+
+    <!-- What to Expect -->
+    <div class="card" style="background:#fff3e0;border-color:#ff9800">
+      <h3 style="color:#e65100;margin-top:0;margin-bottom:15px">✅ What to Expect</h3>
+      <ul style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
+        <li>Real verified doctors</li>
+        <li>Confirmed appointment</li>
+        <li>Video/Chat consultation</li>
+        <li>Digital prescription</li>
+        <li>Follow-up available</li>
+        <li>Secure payment</li>
+      </ul>
+    </div>
+
   </div>
 
   <!-- Redirect Info -->
-  <div style="margin-top:30px;text-align:center;padding:20px;background:#e3f2fd;border-radius:8px;border:2px solid #2196F3">
+  <div style="text-align:center;padding:20px;background:#e3f2fd;border-radius:8px;border:2px solid #2196F3;margin-bottom:30px">
     <p style="margin:0;color:#1565c0;font-size:14px;font-weight:600">
-      ⏱️ Redirecting in 3 seconds...
+      ⏱️ Opening booking platform...
     </p>
     <p style="margin:8px 0 0 0;color:#666;font-size:12px">
-      If not redirected automatically, click button below
+      If not opened, click button below
     </p>
-    <a href="{{ booking_link }}" target="_blank"
-      style="display:inline-block;margin-top:15px;padding:12px 30px;background:#1D9E75;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:600;cursor:pointer;transition:all 0.3s">
-      🔗 Open JustDial Booking Page
-    </a>
   </div>
 
-  <!-- Booking Details -->
-  <div class="card" style="margin-top:30px">
-    <h3 style="color:#0F6E56;margin-top:0;margin-bottom:20px">📋 Your Booking Details</h3>
+  <!-- Platform Specific Info -->
+  <div class="card" style="margin-bottom:30px">
+    <h3 style="color:#0F6E56;margin-top:0">📱 Platform Information</h3>
     
-    <div style="margin-bottom:15px;padding:15px;background:#f0faf6;border-left:4px solid #1D9E75;border-radius:6px">
-      <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">Doctor</p>
-      <p style="margin:5px 0 0 0;color:#0F6E56;font-size:16px;font-weight:700">
-        {{ doctor_name }}
-      </p>
-    </div>
-
-    <div style="margin-bottom:15px;padding:15px;background:#f0faf6;border-left:4px solid #1D9E75;border-radius:6px">
-      <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">Condition</p>
-      <p style="margin:5px 0 0 0;color:#0F6E56;font-size:16px;font-weight:700">
-        {{ disease }}
-      </p>
-    </div>
-
-    <div style="margin-bottom:15px;padding:15px;background:#fff3e0;border-left:4px solid #ff9800;border-radius:6px">
-      <p style="margin:0;color:#555;font-size:11px;text-transform:uppercase;font-weight:600">Platform</p>
-      <p style="margin:5px 0 0 0;color:#e65100;font-size:16px;font-weight:700">
-        JustDial Secure Booking
-      </p>
-    </div>
-  </div>
-
-  <!-- What Happens Next -->
-  <div class="card" style="background:#e8f5e9;border-color:#4caf50;margin-top:30px">
-    <h3 style="color:#2e7d32;margin-top:0">📅 Next Steps on JustDial</h3>
-    <div style="line-height:2;color:#333;font-size:13px">
-      <p>✅ <strong>View Doctor Profile</strong> - See complete details and reviews</p>
-      <p>✅ <strong>Call Doctor</strong> - Direct phone number to schedule appointment</p>
-      <p>✅ <strong>Online Booking</strong> - Book through JustDial if available</p>
-      <p>✅ <strong>Confirm Details</strong> - Verify time, fees, and consultation mode</p>
-      <p>✅ <strong>Payment</strong> - Secure payment through JustDial</p>
-      <p>✅ <strong>Get Consultation Link</strong> - Receive video call link from doctor</p>
-    </div>
-  </div>
-
-  <!-- Important Notes -->
-  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
-    <h3 style="color:#e65100;margin-top:0">ℹ️ Important Information</h3>
-    <ul style="color:#666;line-height:2;margin:0;padding-left:20px;font-size:12px">
-      <li><strong>Direct Booking:</strong> You're booking directly through JustDial's secure platform</li>
-      <li><strong>Verified Doctors:</strong> All doctors on JustDial are verified professionals</li>
-      <li><strong>Real-time Availability:</strong> Check doctor's actual availability on JustDial</li>
-      <li><strong>Transparent Pricing:</strong> Fees shown are as per doctor's JustDial profile</li>
-      <li><strong>Secure Payment:</strong> JustDial handles all payments securely</li>
-      <li><strong>Digital Prescription:</strong> Get e-prescription after consultation</li>
-    </ul>
-  </div>
-
-  <!-- Cancellation & Refund Policy -->
-  <div class="card" style="background:#f5f5f5;border-color:#999;margin-top:30px">
-    <h3 style="color:#333;margin-top:0">📋 Cancellation Policy</h3>
-    <p style="margin:0;font-size:12px;color:#666;line-height:1.8">
-      <strong>JustDial's Policy:</strong><br>
-      • Free cancellation: Up to 24 hours before appointment<br>
-      • 50% refund: 24-48 hours before appointment<br>
-      • No refund: After 48 hours<br><br>
-      <em>Check latest policy on JustDial website before booking</em>
-    </p>
-  </div>
-
-  <!-- Trust Indicators -->
-  <div class="card" style="background:#e3f2fd;border-color:#2196F3;margin-top:30px;text-align:center">
-    <p style="margin:0;color:#1565c0;font-size:12px;line-height:1.8">
-      🔒 <strong>Safe & Secure:</strong> JustDial is India's trusted healthcare booking platform<br>
-      ✅ <strong>Real Doctors:</strong> All verified professionals<br>
-      💳 <strong>Secure Payments:</strong> Safe payment gateway
-    </p>
+    {% if platform == 'justdial' %}
+      <div style="background:#FDB913;color:#333;padding:20px;border-radius:8px">
+        <h4 style="margin:0;color:#333">🟡 JustDial</h4>
+        <p style="margin:10px 0 0 0;font-size:13px">
+          <strong>✓ 100,000+ doctors</strong> across India<br>
+          <strong>✓ Real-time availability</strong> and instant booking<br>
+          <strong>✓ Secure payments</strong> with protected data<br>
+          <strong>✓ 24/7 customer support</strong> available
+        </p>
+      </div>
+    {% elif platform == 'practo' %}
+      <div style="background:#00C9FF;color:#333;padding:20px;border-radius:8px">
+        <h4 style="margin:0;color:#333">💚 Practo</h4>
+        <p style="margin:10px 0 0 0;font-size:13px">
+          <strong>✓ Detailed doctor profiles</strong> with full credentials<br>
+          <strong>✓ Real patient reviews</strong> and ratings<br>
+          <strong>✓ Instant video consultation</strong> from home<br>
+          <strong>✓ Appointment reminders</strong> and digital records
+        </p>
+      </div>
+    {% elif platform == 'lybrate' %}
+      <div style="background:#667EEA;color:white;padding:20px;border-radius:8px">
+        <h4 style="margin:0;color:white">💜 Lybrate</h4>
+        <p style="margin:10px 0 0 0;font-size:13px">
+          <strong>✓ 1000+ online specialists</strong> available 24/7<br>
+          <strong>✓ Instant consultation</strong> video/chat/audio<br>
+          <strong>✓ Affordable consultations</strong> starting ₹99<br>
+          <strong>✓ Digital prescriptions</strong> instantly available
+        </p>
+      </div>
+    {% endif %}
   </div>
 
   <!-- Action Buttons -->
-  <div style="margin-top:40px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+  <div style="margin-bottom:30px;text-align:center">
     <a href="{{ booking_link }}" target="_blank"
-      style="padding:14px 30px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;font-size:14px;transition:all 0.3s">
-      🔗 Open JustDial Now
+      style="display:inline-block;padding:14px 40px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;font-size:14px;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
+      🔗 Open Booking Platform
     </a>
+  </div>
+
+  <!-- Tips -->
+  <div class="card" style="background:#f0faf6;border-color:#1D9E75">
+    <h3 style="color:#0F6E56;margin-top:0">💡 Tips for Booking</h3>
+    <ul style="color:#333;line-height:2;margin:0;padding-left:20px;font-size:13px">
+      <li><strong>Read reviews:</strong> Check patient feedback before booking</li>
+      <li><strong>Check qualifications:</strong> Look for MD/DNB/DM degrees</li>
+      <li><strong>Compare fees:</strong> Consultation fees typically ₹300-1000</li>
+      <li><strong>Ask questions:</strong> Ask about experience with your condition</li>
+      <li><strong>Prepare documents:</strong> Keep medical reports ready</li>
+      <li><strong>Test setup:</strong> Check camera/mic before consultation</li>
+    </ul>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card" style="background:#fff3e0;border-color:#ff9800;margin-top:30px">
+    <h3 style="color:#e65100;margin-top:0">❓ Frequently Asked Questions</h3>
+    
+    <div style="margin-bottom:15px;padding:12px;background:white;border-left:3px solid #ff9800;border-radius:6px">
+      <p style="margin:0;color:#333;font-weight:600;font-size:12px">Q: Is online consultation as good as in-person?</p>
+      <p style="margin:5px 0 0 0;color:#666;font-size:12px">A: Yes! Video consultation allows doctors to see you, ask questions, and provide diagnosis. Perfect for follow-ups and non-emergency care.</p>
+    </div>
+
+    <div style="margin-bottom:15px;padding:12px;background:white;border-left:3px solid #ff9800;border-radius:6px">
+      <p style="margin:0;color:#333;font-weight:600;font-size:12px">Q: How long is a consultation?</p>
+      <p style="margin:5px 0 0 0;color:#666;font-size:12px">A: Usually 15-30 minutes. Doctor will examine, ask questions, and provide guidance + digital prescription.</p>
+    </div>
+
+    <div style="margin-bottom:15px;padding:12px;background:white;border-left:3px solid #ff9800;border-radius:6px">
+      <p style="margin:0;color:#333;font-weight:600;font-size:12px">Q: When will I get prescription?</p>
+      <p style="margin:5px 0 0 0;color:#666;font-size:12px">A: Digital prescription is sent immediately after consultation. You can download and show to pharmacist.</p>
+    </div>
+
+    <div style="padding:12px;background:white;border-left:3px solid #ff9800;border-radius:6px">
+      <p style="margin:0;color:#333;font-weight:600;font-size:12px">Q: Can I cancel appointment?</p>
+      <p style="margin:5px 0 0 0;color:#666;font-size:12px">A: Yes! Most platforms allow free cancellation up to 24 hours. Check terms on platform.</p>
+    </div>
+  </div>
+
+  <!-- Safety Info -->
+  <div class="card" style="background:#e3f2fd;border-color:#2196F3;margin-top:30px">
+    <p style="margin:0;color:#1565c0;font-size:12px;line-height:1.8">
+      🔒 <strong>Your Data is Safe:</strong> All platforms use end-to-end encryption for video calls and store data securely. 
+      Your prescription and records are private and only accessible to you and your doctor.
+    </p>
+  </div>
+
+  <!-- Back Buttons -->
+  <div style="margin-top:40px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
     <a href="{% url 'home' %}" 
-      style="padding:14px 30px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;font-size:14px">
-      🏠 Back to Home
+      style="padding:12px 25px;background:#0F6E56;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
+      🏠 Home
     </a>
     <a href="{% url 'disease_detector' %}" 
-      style="padding:14px 30px;background:#2196F3;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;font-size:14px">
+      style="padding:12px 25px;background:#1D9E75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block">
       📸 Analyze Another
     </a>
   </div>
@@ -119,17 +160,17 @@
   <div style="margin-top:40px;text-align:center;padding:20px;background:#f9f9f9;border-radius:8px">
     <p style="margin:0;color:#666;font-size:12px">
       <strong>Thank you for using MediSathi!</strong><br>
-      We help you find the right doctor quickly and easily.<br>
-      Your health is our priority.
+      We help you understand your symptoms and connect with real doctors.<br>
+      Your health is our priority. 💚
     </p>
   </div>
 </div>
 
 <script>
-// Redirect to JustDial after 3 seconds
+// Auto-open platform after 2 seconds
 setTimeout(function() {
   window.location.href = "{{ booking_link }}";
-}, 3000);
+}, 2000);
 </script>
 
 {% endblock %}
