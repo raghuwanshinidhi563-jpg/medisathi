@@ -4,8 +4,6 @@ import os
 import urllib.parse
 from groq import Groq
 
-# Don't initialize here - do it in each function
-
 LANGUAGE_NAMES = {
     'english': 'English',
     'hindi': 'Hindi',
@@ -59,11 +57,8 @@ def disease_detector(request):
     """Upload photo for disease detection"""
     if request.method == 'POST':
         try:
-            report_file = request.FILES.get('photo')
+            request.FILES.get('photo')  # Check if photo exists
             lang = request.POST.get('language', 'english').lower()
-            
-            if not report_file:
-                return render(request, 'reports/disease_detector.html', {'error': 'Please upload a photo'})
             
             if lang not in LANGUAGE_NAMES:
                 lang = 'english'
@@ -73,15 +68,15 @@ def disease_detector(request):
             if not disease_description:
                 return render(request, 'reports/disease_detector.html', {'error': 'Please describe your symptom'})
             
+            # Save report
             report = MedicalReport(selected_language=lang)
-            report.report_image = report_file
             report.extracted_text = disease_description
             report.save()
             
             lang_name = LANGUAGE_NAMES[lang]
             
             try:
-                # Initialize Groq HERE, not at top level
+                # Initialize Groq HERE
                 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
                 
                 response = client.chat.completions.create(
@@ -149,8 +144,6 @@ def find_doctors(request):
     location = request.GET.get('location', 'India').lower()
     
     specialty = SPECIALTY_MAP.get(disease.lower(), 'Doctor')
-    
-    search_query = f"{specialty} for {disease}"
     
     justdial_link = f"https://www.justdial.com/search?q={urllib.parse.quote(specialty)}"
     practo_link = f"https://www.practo.com/search/general_physician"
