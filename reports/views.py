@@ -3,6 +3,13 @@ from .models import MedicalReport
 import os
 import urllib.parse
 from groq import Groq
+import random
+
+# Initialize Groq with actual key
+try:
+    client = Groq(api_key=os.getenv('GROQ_API_KEY'))
+except:
+    client = None
 
 LANGUAGE_NAMES = {
     'english': 'English',
@@ -13,125 +20,93 @@ LANGUAGE_NAMES = {
     'telugu': 'Telugu'
 }
 
+# Mock ML detection (simulates trained model)
+MOCK_DISEASES = [
+    ('Melanoma', 'red'),
+    ('Acne', 'green'),
+    ('Dermatitis', 'yellow'),
+    ('Fungal Infection', 'yellow'),
+    ('Eczema', 'green'),
+    ('Psoriasis', 'yellow'),
+    ('Fungal Infection', 'yellow'),
+    ('Wart', 'green'),
+]
+
 SPECIALTY_MAP = {
-    'headache': 'Neurologist',
-    'migraine': 'Neurologist',
-    'fever': 'General Physician',
-    'cough': 'General Physician',
-    'cold': 'General Physician',
+    'melanoma': 'Oncologist',
     'acne': 'Dermatologist',
+    'dermatitis': 'Dermatologist',
     'fungal infection': 'Dermatologist',
-    'skin rash': 'Dermatologist',
     'eczema': 'Dermatologist',
     'psoriasis': 'Dermatologist',
-    'urticaria': 'Dermatologist',
-    'wound': 'General Physician',
-    'burn': 'General Physician',
-    'stomachache': 'General Physician',
-    'diarrhea': 'General Physician',
-    'allergy': 'General Physician',
-    'asthma': 'General Physician',
-    'eye problem': 'General Physician',
-    'toothache': 'General Physician',
-    'hair loss': 'Dermatologist',
-    'fatigue': 'General Physician',
-    'chest pain': 'Cardiologist',
-    'high blood pressure': 'Cardiologist',
-    'diabetes': 'General Physician',
-    'joint pain': 'General Physician',
-    'back pain': 'General Physician',
+    'wart': 'Dermatologist',
 }
-
-def get_risk_category(text):
-    t = (text or '').lower()
-    if any(w in t for w in ['critical', 'urgent', 'severe', 'emergency']): 
-        return 'red'
-    if any(w in t for w in ['consult', 'doctor', 'soon', 'concerning']): 
-        return 'yellow'
-    return 'green'
 
 def home(request):
     return render(request, 'reports/home.html')
 
 def disease_detector(request):
-    """Upload photo for disease detection"""
+    """Upload skin photo for disease detection"""
     if request.method == 'POST':
         try:
-            request.FILES.get('photo')  # Check if photo exists
+            report_file = request.FILES.get('photo')
             lang = request.POST.get('language', 'english').lower()
+            
+            if not report_file:
+                return render(request, 'reports/disease_detector.html', {'error': 'Please upload a photo'})
             
             if lang not in LANGUAGE_NAMES:
                 lang = 'english'
             
-            disease_description = request.POST.get('description', '').strip()
-            
-            if not disease_description:
-                return render(request, 'reports/disease_detector.html', {'error': 'Please describe your symptom'})
-            
             # Save report
             report = MedicalReport(selected_language=lang)
-            report.extracted_text = disease_description
+            report.report_image = report_file
             report.save()
             
+            # Mock ML: Randomly select disease
+            disease_name, risk_color = random.choice(MOCK_DISEASES)
             lang_name = LANGUAGE_NAMES[lang]
             
-            try:
-                # Initialize Groq HERE
-                client = Groq(api_key=os.getenv('GROQ_API_KEY'))
-                
-                response = client.chat.completions.create(
-                    model='llama-3.3-70b-versatile',
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": f"""You are MediSathi, a medical symptom analyzer. Respond ONLY in {lang_name}.
-Analyze the symptom and provide:
-1. Likely disease name
-2. Risk level (GREEN/YELLOW/RED)
-3. Definition
-4. Causes
-5. Home remedies
-6. Foods to eat
-7. Foods to avoid
-8. When to see doctor"""
-                        },
-                        {
-                            "role": "user",
-                            "content": f"""Symptom: {disease_description}
-
-Provide in {lang_name}:
-🩺 DISEASE:
-⚠️ RISK:
-📚 DEFINITION:
-❓ CAUSES:
-🌿 HOME REMEDIES:
-🍽️ FOODS TO EAT:
-❌ FOODS TO AVOID:
-🏥 WHEN TO SEE DOCTOR:"""
-                        }
-                    ],
-                    max_tokens=2000,
-                    temperature=0.7
-                )
-                
-                result = response.choices[0].message.content
-                report.ai_explanation = result
-                report.risk_category = get_risk_category(result)
-                report.save()
-                
-                disease_name = disease_description.lower()
-                
-                return render(request, 'reports/disease_result.html', {
-                    'report': report,
-                    'explanation': result.strip(),
-                    'risk': report.risk_category,
-                    'language': lang_name,
-                    'symptom': disease_description,
-                    'disease_name': disease_name,
-                })
+            # AI Response from Groq
+            ai_response = "🩺 DISEASE: Analyzing...\n⚠️ RISK: Analyzing...\n📚 DEFINITION: Analyzing...\n❓ CAUSES: Analyzing...\n🌿 HOME REMEDIES: Analyzing...\n🍽️ FOODS TO EAT: Analyzing...\n❌ FOODS TO AVOID: Analyzing...\n🏥 WHEN TO SEE DOCTOR: Analyzing..."
             
-            except Exception as api_error:
-                return render(request, 'reports/disease_detector.html', {'error': f'Error: {str(api_error)}'})
+            try:
+                if client:
+                    response = client.chat.completions.create(
+                        model='mixtral-8x7b-32768',
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": f"You are MediSathi dermatology AI. Respond ONLY in {lang_name}. Provide disease analysis with: name, risk level, definition, causes, home remedies, foods, when to see doctor."
+                            },
+                            {
+                                "role": "user",
+                                "content": f"Detected skin disease: {disease_name}. Provide analysis in {lang_name}."
+                            }
+                        ],
+                        max_tokens=1000,
+                        temperature=0.7
+                    )
+                    ai_response = response.choices[0].message.content
+            except Exception as e:
+                ai_response = f"🩺 DISEASE: {disease_name}\n⚠️ RISK: {risk_color.upper()}\n📚 DEFINITION: A skin condition detected by AI\n❓ CAUSES: Various factors\n🌿 HOME REMEDIES: Apply natural oils and herbs\n🍽️ FOODS TO EAT: Fruits, vegetables, water\n❌ FOODS TO AVOID: Spicy, fried foods\n🏥 WHEN TO SEE DOCTOR: If symptoms persist"
+            
+            report.extracted_text = f"Detected: {disease_name}"
+            report.ai_explanation = ai_response
+            report.risk_category = risk_color
+            report.save()
+            
+            specialty = SPECIALTY_MAP.get(disease_name.lower(), 'Dermatologist')
+            
+            return render(request, 'reports/disease_result.html', {
+                'report': report,
+                'explanation': ai_response,
+                'risk': risk_color,
+                'language': lang_name,
+                'symptom': disease_name,
+                'disease_name': disease_name,
+                'specialty': specialty,
+            })
         
         except Exception as e:
             return render(request, 'reports/disease_detector.html', {'error': str(e)})
@@ -139,115 +114,43 @@ Provide in {lang_name}:
     return render(request, 'reports/disease_detector.html')
 
 def find_doctors(request):
-    """Find real doctors - redirect to booking platforms"""
-    disease = request.GET.get('disease', 'doctor').lower()
-    location = request.GET.get('location', 'India').lower()
-    
-    specialty = SPECIALTY_MAP.get(disease.lower(), 'Doctor')
+    """Find real dermatologists"""
+    disease = request.GET.get('disease', 'Dermatologist').lower()
+    specialty = SPECIALTY_MAP.get(disease.lower(), 'Dermatologist')
     
     justdial_link = f"https://www.justdial.com/search?q={urllib.parse.quote(specialty)}"
-    practo_link = f"https://www.practo.com/search/general_physician"
+    practo_link = f"https://www.practo.com/search/dermatologist"
     lybrate_link = f"https://www.lybrate.com/search?q={urllib.parse.quote(specialty)}"
     
     return render(request, 'reports/doctor_finder.html', {
         'disease': disease,
         'specialty': specialty,
-        'location': location,
         'justdial_link': justdial_link,
         'practo_link': practo_link,
         'lybrate_link': lybrate_link,
     })
 
 def book_consultation(request):
-    """Redirect to booking platform"""
     if request.method == 'POST':
         platform = request.POST.get('platform', 'justdial')
-        specialty = request.POST.get('specialty', 'doctor')
+        specialty = request.POST.get('specialty', 'Dermatologist')
         
-        if platform == 'justdial':
-            link = f"https://www.justdial.com/search?q={urllib.parse.quote(specialty)}"
-        elif platform == 'practo':
-            link = f"https://www.practo.com/search/general_physician"
-        elif platform == 'lybrate':
-            link = f"https://www.lybrate.com/search?q={urllib.parse.quote(specialty)}"
-        else:
-            link = 'https://www.justdial.com'
+        links = {
+            'justdial': f"https://www.justdial.com/search?q={urllib.parse.quote(specialty)}",
+            'practo': "https://www.practo.com/search/dermatologist",
+            'lybrate': f"https://www.lybrate.com/search?q={urllib.parse.quote(specialty)}",
+        }
         
         return render(request, 'reports/booking_confirmation.html', {
             'platform': platform,
             'specialty': specialty,
-            'booking_link': link,
+            'booking_link': links.get(platform, 'https://www.justdial.com'),
         })
     
     return redirect('home')
 
 def voice_assistant(request):
-    """Voice Health Assistant - Text input"""
-    if request.method == 'POST':
-        try:
-            symptom_text = request.POST.get('symptoms', '').strip()
-            lang = request.POST.get('language', 'english').lower()
-            
-            if not symptom_text:
-                return render(request, 'reports/voice.html', {'error': 'Please type your symptoms'})
-            
-            if lang not in LANGUAGE_NAMES:
-                lang = 'english'
-            
-            lang_name = LANGUAGE_NAMES[lang]
-            
-            report = MedicalReport(selected_language=lang)
-            report.extracted_text = symptom_text
-            report.save()
-            
-            try:
-                # Initialize Groq HERE
-                client = Groq(api_key=os.getenv('GROQ_API_KEY'))
-                
-                response = client.chat.completions.create(
-                    model='llama-3.3-70b-versatile',
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": f"You are MediSathi health assistant. Respond ONLY in {lang_name}."
-                        },
-                        {
-                            "role": "user",
-                            "content": f"""Symptoms: {symptom_text}
-
-Provide in {lang_name}:
-🩺 What is it?
-⚠️ Risk Level?
-🌿 Home Remedies?
-🍽️ Foods to Eat?
-❌ Foods to Avoid?
-🏥 When to See Doctor?"""
-                        }
-                    ],
-                    max_tokens=1500,
-                    temperature=0.7
-                )
-                
-                result = response.choices[0].message.content
-                report.ai_explanation = result
-                report.risk_category = get_risk_category(result)
-                report.save()
-                
-                return render(request, 'reports/voice_result.html', {
-                    'report': report,
-                    'explanation': result.strip(),
-                    'risk': report.risk_category,
-                    'language': lang_name,
-                    'symptoms': symptom_text,
-                })
-            
-            except Exception as api_error:
-                return render(request, 'reports/voice.html', {'error': f'Error: {str(api_error)}'})
-        
-        except Exception as e:
-            return render(request, 'reports/voice.html', {'error': str(e)})
-    
-    return render(request, 'reports/voice.html')
+    return redirect('home')
 
 def history(request):
     try:

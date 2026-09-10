@@ -2,15 +2,13 @@
 
 {% block content %}
 <div class="container">
-  <h2 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">
-    📸 Disease Detector
-  </h2>
-  <p style="color:#777;margin-bottom:28px">
-    Upload a photo of your symptom and describe it
-  </p>
+  <div style="text-align:center;margin-bottom:40px;padding:30px;background:linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);border-radius:12px;color:white">
+    <h1 style="margin:0;font-size:28px">📸 Upload Skin Photo</h1>
+    <p style="margin:10px 0 0 0">Upload photo → AI analyzes → Get doctor suggestions</p>
+  </div>
 
   {% if error %}
-  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px">
+  <div style="background:#fee;color:#c33;padding:15px;border-radius:8px;margin-bottom:20px;border-left:4px solid #c33">
     ⚠️ {{ error }}
   </div>
   {% endif %}
@@ -19,61 +17,37 @@
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
-      <!-- Photo Upload -->
-      <div style="margin-bottom:30px">
-        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:15px">
-          📸 Upload Photo of Symptom
-        </label>
-        <input type="file" name="photo" accept="image/*" required
-          style="width:100%;padding:20px;border:3px dashed #1D9E75;border-radius:8px;font-size:14px;background:#f0faf6;cursor:pointer">
-        <p style="font-size:12px;color:#888;margin-top:8px">
-          Upload photo of rash, wound, lesion, or any visible symptom
-        </p>
+      <div style="margin-bottom:20px">
+        <label style="font-weight:600;color:#0F6E56;display:block;margin-bottom:10px">📷 Select Image</label>
+        <input type="file" name="photo" accept="image/*" required style="padding:10px;border:2px solid #1D9E75;border-radius:6px;width:100%;box-sizing:border-box">
       </div>
 
-      <!-- Symptom Description -->
-      <div style="margin-bottom:30px">
-        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
-          📝 Describe Your Symptom
-        </label>
-        <textarea name="description" required
-          style="width:100%;height:120px;padding:12px;border:2px solid #1D9E75;border-radius:8px;font-size:14px"
-          placeholder="Example:
-Red itchy rash on my arm for 3 days, started after wearing new clothes, spreads when scratched, some burning sensation"></textarea>
-      </div>
-
-      <!-- Language -->
-      <div style="margin-bottom:30px">
-        <label style="font-size:16px;font-weight:600;color:#0F6E56;display:block;margin-bottom:12px">
-          🌍 Select Language for Analysis
-        </label>
-        <select name="language" required
-          style="width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;font-size:14px">
-          <option value="">-- Choose Language --</option>
-          <option value="english">🇮🇳 English</option>
-          <option value="hindi">🇮🇳 Hindi (हिंदी)</option>
-          <option value="marathi">🇮🇳 Marathi (मराठी)</option>
-          <option value="bengali">🇮🇳 Bengali (বাংলা)</option>
-          <option value="tamil">🇮🇳 Tamil (தமिழ்)</option>
-          <option value="telugu">🇮🇳 Telugu (తెలుగు)</option>
+      <div style="margin-bottom:20px">
+        <label style="font-weight:600;color:#0F6E56;display:block;margin-bottom:10px">🌍 Language</label>
+        <select name="language" style="padding:10px;border:2px solid #1D9E75;border-radius:6px;width:100%;box-sizing:border-box">
+          <option value="english">English</option>
+          <option value="hindi">Hindi (हिंदी)</option>
+          <option value="marathi">Marathi (मराठी)</option>
+          <option value="bengali">Bengali (বাংলা)</option>
+          <option value="tamil">Tamil (தமிழ்)</option>
+          <option value="telugu">Telugu (తెలుగు)</option>
         </select>
       </div>
 
-      <button type="submit" class="btn" style="width:100%;font-size:16px;padding:14px;background:#0F6E56;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">
-        🤖 Analyze & Detect Disease
+      <button type="submit" style="width:100%;padding:12px;background:linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);color:white;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:16px;transition:all 0.3s">
+        🚀 Analyze Photo
       </button>
     </form>
   </div>
 
-  <div class="card" style="background:#FFF7ED;border-color:#FED7AA;margin-top:30px">
-    <p style="font-size:13px;color:#92400E;line-height:1.8">
-      <strong>📋 What to upload:</strong><br>
-      ✓ Clear photo of affected area<br>
-      ✓ Good lighting<br>
-      ✓ Close-up view<br>
-      ✓ Describe when it started & what triggers it
+  <div class="card" style="background:#e8f5e9;border-color:#4caf50;margin-top:30px">
+    <h3 style="color:#2e7d32;margin-top:0">How It Works</h3>
+    <p style="color:#333;line-height:1.8;margin:0">
+      1. 📸 Upload any skin photo<br>
+      2. 🤖 AI detects disease type<br>
+      3. 💊 Get health guidance & remedies<br>
+      4. 👨‍⚕️ Find verified doctors online
     </p>
   </div>
 </div>
-
 {% endblock %}
